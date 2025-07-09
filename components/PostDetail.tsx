@@ -6,6 +6,9 @@ import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 import CommentSection from './CommentSection';
+import { pcColors } from '../src/styles/colors';
+import { BORDER_SINGLE, SPECIAL } from '../src/styles/asciiChars';
+import TextBox from '../src/components/pc-components/TextBox';
 
 interface PostDetailProps {
   post: UIPost | null;
@@ -19,6 +22,10 @@ interface PostDetailProps {
   categories?: any[];
 }
 
+/**
+ * 게시물 상세 보기 컴포넌트
+ * PC통신 스타일로 게시물 내용과 댓글을 표시합니다.
+ */
 const PostDetail: React.FC<PostDetailProps> = ({ 
   post, 
   onSelectTag, 
@@ -41,10 +48,13 @@ const PostDetail: React.FC<PostDetailProps> = ({
 
   if (!post) {
     return (
-      <div className="flex-grow flex items-center justify-center bg-slate-50 text-slate-500">
+      <div className="flex-grow flex items-center justify-center font-pc" 
+           style={{ backgroundColor: pcColors.background.secondary, color: pcColors.text.secondary }}>
         <div className="text-center">
-            <MessagesSquareIcon className="mx-auto w-16 h-16 text-slate-300" />
-            <p className="mt-2 text-lg">게시물을 선택하여 여기에서 보세요.</p>
+            <div className="mx-auto w-16 h-16 mb-2" style={{ color: pcColors.text.secondary }}>
+              {SPECIAL.bullet}{SPECIAL.bullet}{SPECIAL.bullet}
+            </div>
+            <p className="text-lg">게시물을 선택하여 여기에서 보세요.</p>
         </div>
       </div>
     );
@@ -56,17 +66,19 @@ const PostDetail: React.FC<PostDetailProps> = ({
     : defaultAvatar;
 
   return (
-    <div className="flex-grow bg-slate-50 flex flex-col h-full overflow-hidden">
-      <div className="p-6 border-b border-slate-200">
+    <div className="flex-grow flex flex-col h-full overflow-hidden font-pc" 
+         style={{ backgroundColor: pcColors.background.primary, color: pcColors.text.primary }}>
+      {/* 게시물 헤더 */}
+      <div className="px-4 py-2 border-b" style={{ borderColor: pcColors.border.primary }}>
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">{post.title}</h1>
+            <h1 className="text-xl font-bold" style={{ color: pcColors.text.accent }}>{post.title}</h1>
           </div>
           
           <div className="flex items-center">
             {post.comments > 0 && (
-              <div className="flex items-center mr-4 text-slate-600">
-                <MessagesSquareIcon className="w-4 h-4 mr-1" />
+              <div className="flex items-center mr-4" style={{ color: pcColors.text.secondary }}>
+                <span className="mr-1">{SPECIAL.bullet}</span>
                 <span className="text-sm">{post.comments}개의 댓글</span>
               </div>
             )}
@@ -76,91 +88,165 @@ const PostDetail: React.FC<PostDetailProps> = ({
               <div className="flex space-x-2">
                 <button 
                   onClick={() => post && onEditPost(post)}
-                  className="p-1.5 rounded-full text-slate-600 hover:bg-slate-200 transition-colors"
+                  className="px-2 py-1 border"
+                  style={{ 
+                    borderColor: pcColors.border.primary,
+                    color: pcColors.text.secondary
+                  }}
                   title="게시물 수정"
                 >
-                  <PencilIcon className="w-5 h-5" />
+                  수정
                 </button>
                 <button 
                   onClick={onDeletePost}
-                  className="p-1.5 rounded-full text-slate-600 hover:bg-slate-200 transition-colors"
+                  className="px-2 py-1 border"
+                  style={{ 
+                    borderColor: pcColors.border.primary,
+                    color: pcColors.text.error
+                  }}
                   title="게시물 삭제"
                 >
-                  <TrashIcon className="w-5 h-5" />
+                  삭제
                 </button>
               </div>
             )}
           </div>
         </div>
         
-        <div className="flex items-center space-x-3 mt-3 text-sm">
-          <img 
-            src={avatarUrl} 
-            alt={post.author.name} 
-            className="w-10 h-10 rounded-full"
-            onError={(e) => {
-              // 이미지 로드 실패 시 기본 이미지로 대체
-              (e.target as HTMLImageElement).src = defaultAvatar;
-            }}
-          />
-          <div>
-            <p className="font-semibold text-slate-800">{post.author.name}</p>
-            <p className="text-slate-500">{new Date(post.date).toLocaleString()}</p>
-          </div>
+        <div className="flex items-center mt-2 text-sm" style={{ color: pcColors.text.secondary }}>
+          <span className="mr-2">작성자: {post.author.name}</span>
+          <span>작성일: {new Date(post.date).toLocaleString()}</span>
         </div>
       </div>
+
+      {/* 게시물 내용 */}
       <div className="overflow-y-auto flex-grow">
-        <div className="p-6">
-          <div className="prose prose-slate prose-headings:font-bold prose-headings:text-slate-900 prose-p:text-slate-700 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-code:bg-slate-100 prose-code:text-slate-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-slate-800 prose-pre:text-slate-100 max-w-none">
+        <TextBox 
+          borderStyle="none" 
+          padding="1rem"
+          className="h-full"
+        >
+          <div className="markdown-body font-pc" style={{ color: pcColors.text.primary }}>
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeSanitize]}
               components={{
                 // 링크를 새 탭에서 열도록 설정
                 a: ({ node, ...props }) => (
-                  <a {...props} target="_blank" rel="noopener noreferrer" />
+                  <a 
+                    {...props} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    style={{ color: pcColors.text.accent, textDecoration: 'underline' }}
+                  />
                 ),
                 // 이미지 스타일 적용
                 img: ({ node, ...props }) => (
-                  <img {...props} className="rounded-md shadow-sm" />
+                  <img {...props} className="max-w-full border" style={{ borderColor: pcColors.border.primary }} />
+                ),
+                // 헤딩 스타일 적용
+                h1: ({ node, ...props }) => (
+                  <h1 {...props} style={{ color: pcColors.text.accent, borderBottom: `1px solid ${pcColors.border.primary}`, paddingBottom: '0.5rem', marginBottom: '1rem' }} />
+                ),
+                h2: ({ node, ...props }) => (
+                  <h2 {...props} style={{ color: pcColors.text.accent, borderBottom: `1px solid ${pcColors.border.primary}`, paddingBottom: '0.3rem', marginBottom: '0.8rem' }} />
+                ),
+                h3: ({ node, ...props }) => (
+                  <h3 {...props} style={{ color: pcColors.text.accent, marginBottom: '0.5rem' }} />
                 ),
                 // 코드 블록 스타일 적용
                 code: ({ node, className, children, ...props }: any) => {
                   const match = /language-(\w+)/.exec(className || '');
                   const isInline = !match && !className;
                   return isInline ? (
-                    <code className="text-sm bg-slate-100 text-slate-800 px-1 py-0.5 rounded" {...props}>
+                    <code 
+                      className="text-sm px-1 py-0.5" 
+                      style={{ 
+                        backgroundColor: pcColors.background.secondary,
+                        color: pcColors.text.accent 
+                      }} 
+                      {...props}
+                    >
                       {children}
                     </code>
                   ) : (
-                    <code className={`${className} text-sm`} {...props}>
+                    <code 
+                      className={`${className} text-sm block p-2 my-2 border`} 
+                      style={{ 
+                        backgroundColor: pcColors.background.secondary,
+                        color: pcColors.text.primary,
+                        borderColor: pcColors.border.primary
+                      }}
+                      {...props}
+                    >
                       {children}
                     </code>
                   );
-                }
+                },
+                // 인용구 스타일 적용
+                blockquote: ({ node, ...props }) => (
+                  <blockquote 
+                    {...props} 
+                    className="border-l-4 pl-4 my-4" 
+                    style={{ borderColor: pcColors.border.primary, color: pcColors.text.secondary }}
+                  />
+                ),
+                // 목록 스타일 적용
+                ul: ({ node, ...props }) => (
+                  <ul {...props} className="list-disc pl-5 my-4" style={{ color: pcColors.text.primary }} />
+                ),
+                ol: ({ node, ...props }) => (
+                  <ol {...props} className="list-decimal pl-5 my-4" style={{ color: pcColors.text.primary }} />
+                ),
+                // 테이블 스타일 적용
+                table: ({ node, ...props }) => (
+                  <table {...props} className="border-collapse my-4 w-full" style={{ borderColor: pcColors.border.primary }} />
+                ),
+                thead: ({ node, ...props }) => (
+                  <thead {...props} style={{ backgroundColor: pcColors.background.secondary, color: pcColors.text.accent }} />
+                ),
+                th: ({ node, ...props }) => (
+                  <th {...props} className="border p-2" style={{ borderColor: pcColors.border.primary }} />
+                ),
+                td: ({ node, ...props }) => (
+                  <td {...props} className="border p-2" style={{ borderColor: pcColors.border.primary }} />
+                ),
               }}
             >
               {post.content}
             </ReactMarkdown>
           </div>
-           {post.tags && post.tags.length > 0 && (
-            <div className="mt-8 pt-4 border-t border-slate-200 flex items-center flex-wrap gap-2">
+          
+          {/* 태그 목록 */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="mt-6 pt-4 border-t flex items-center flex-wrap gap-2" style={{ borderColor: pcColors.border.primary }}>
               {post.tags.map(tag => (
                 <button
                   key={tag}
                   onClick={() => onSelectTag(tag)}
-                  className="flex items-center space-x-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs font-semibold px-2.5 py-1 rounded-full transition-colors"
+                  className="flex items-center px-2 py-1 border"
+                  style={{ 
+                    borderColor: pcColors.border.primary,
+                    color: pcColors.text.secondary,
+                    backgroundColor: pcColors.background.secondary
+                  }}
                 >
-                  <HashtagIcon className="w-3 h-3" />
+                  <span className="mr-1">#</span>
                   <span>{tag}</span>
                 </button>
               ))}
             </div>
           )}
-        </div>
+        </TextBox>
         
-        {/* 댓글 섹션 추가 */}
-        <CommentSection postId={post.id} />
+        {/* 댓글 섹션 */}
+        <TextBox 
+          title="댓글" 
+          borderStyle="single" 
+          className="mt-2"
+        >
+          <CommentSection postId={post.id} />
+        </TextBox>
       </div>
     </div>
   );

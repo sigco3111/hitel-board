@@ -3,6 +3,8 @@ import { UIComment } from '../src/types';
 import { useComments } from '../src/hooks/useComments';
 import { useAuth } from '../src/hooks/useAuth';
 import { PencilIcon, TrashIcon } from './icons';
+import { pcColors } from '../src/styles/colors';
+import { SPECIAL } from '../src/styles/asciiChars';
 
 interface CommentSectionProps {
   postId: string | null;
@@ -10,6 +12,7 @@ interface CommentSectionProps {
 
 /**
  * 댓글 목록 및 작성 기능을 제공하는 컴포넌트
+ * PC통신 스타일로 댓글을 표시합니다.
  * @param postId 게시물 ID
  */
 const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
@@ -113,9 +116,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   
   if (loading && comments.length === 0) {
     return (
-      <div className="p-4 border-t border-slate-200">
-        <div className="flex justify-center p-4">
-          <div className="animate-pulse text-slate-500">댓글을 불러오는 중...</div>
+      <div className="p-2 font-pc" style={{ color: pcColors.text.accent }}>
+        <div className="flex justify-center p-2">
+          <div className="animate-pulse">{SPECIAL.bullet} 댓글을 불러오는 중... {SPECIAL.bullet}</div>
         </div>
       </div>
     );
@@ -123,8 +126,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   
   if (error && comments.length === 0) {
     return (
-      <div className="p-4 border-t border-slate-200">
-        <div className="bg-red-50 text-red-700 p-3 rounded-md">
+      <div className="p-2 font-pc" style={{ color: pcColors.text.error }}>
+        <div className="p-2 border" style={{ borderColor: pcColors.border.primary }}>
           <p>댓글을 불러오는 중 오류가 발생했습니다.</p>
           <p className="text-sm">{error.message}</p>
         </div>
@@ -133,26 +136,33 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   }
   
   return (
-    <div className="border-t border-slate-200">
+    <div className="font-pc">
       {/* 댓글 목록 */}
-      <div className="p-4">
-        <h3 className="font-semibold text-slate-800 mb-4">댓글 {comments.length}개</h3>
+      <div className="p-2">
+        <div className="mb-2" style={{ color: pcColors.text.secondary }}>
+          {SPECIAL.bullet} 댓글 {comments.length}개
+        </div>
         
         {comments.length === 0 ? (
-          <div className="text-center py-6 text-slate-500">
+          <div className="text-center py-2" style={{ color: pcColors.text.secondary }}>
             첫 번째 댓글을 작성해보세요.
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2">
             {comments.map(comment => (
-              <div key={comment.id} className="bg-white rounded-lg shadow-sm p-4">
+              <div key={comment.id} className="border p-2 mb-2" style={{ borderColor: pcColors.border.primary, backgroundColor: pcColors.background.secondary }}>
                 {/* 댓글 수정 모드 */}
                 {editingComment && editingComment.id === comment.id ? (
-                  <form onSubmit={handleUpdateComment} className="space-y-3">
+                  <form onSubmit={handleUpdateComment} className="space-y-2">
                     <textarea
                       value={editingComment.content}
                       onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
-                      className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full p-2 border font-pc"
+                      style={{ 
+                        backgroundColor: pcColors.background.primary,
+                        color: pcColors.text.primary,
+                        borderColor: pcColors.border.primary
+                      }}
                       rows={3}
                       disabled={submitting}
                     />
@@ -160,14 +170,23 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                       <button
                         type="button"
                         onClick={cancelEditing}
-                        className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200"
+                        className="px-2 py-1 border"
+                        style={{ 
+                          borderColor: pcColors.border.primary,
+                          color: pcColors.text.secondary
+                        }}
                         disabled={submitting}
                       >
                         취소
                       </button>
                       <button
                         type="submit"
-                        className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                        className="px-2 py-1 border"
+                        style={{ 
+                          borderColor: pcColors.border.primary,
+                          color: pcColors.text.accent,
+                          backgroundColor: pcColors.background.secondary
+                        }}
                         disabled={submitting}
                       >
                         {submitting ? '저장 중...' : '저장'}
@@ -176,47 +195,38 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                   </form>
                 ) : (
                   <>
-                    <div className="flex items-start space-x-3">
-                      <img 
-                        src={comment.author.photoURL || defaultAvatar} 
-                        alt={comment.author.name} 
-                        className="w-8 h-8 rounded-full"
-                        onError={(e) => {
-                          // 이미지 로드 실패 시 기본 이미지로 대체
-                          (e.target as HTMLImageElement).src = defaultAvatar;
-                        }}
-                      />
-                      <div className="flex-grow">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <span className="font-semibold text-slate-800">{comment.author.name}</span>
-                            <span className="text-xs text-slate-500 ml-2">
-                              {new Date(comment.date).toLocaleString()}
-                            </span>
-                          </div>
-                          
-                          {/* 작성자에게만 보이는 수정/삭제 버튼 */}
-                          {user && user.uid === comment.authorId && (
-                            <div className="flex space-x-1">
-                              <button 
-                                onClick={() => startEditing(comment)}
-                                className="p-1 text-slate-500 hover:text-slate-700"
-                                title="댓글 수정"
-                              >
-                                <PencilIcon className="w-4 h-4" />
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteComment(comment.id)}
-                                className="p-1 text-slate-500 hover:text-red-600"
-                                title="댓글 삭제"
-                              >
-                                <TrashIcon className="w-4 h-4" />
-                              </button>
-                            </div>
-                          )}
+                    <div className="flex flex-col">
+                      <div className="flex justify-between items-center mb-1">
+                        <div style={{ color: pcColors.text.accent }}>
+                          {comment.author.name}
+                          <span className="ml-2 text-xs" style={{ color: pcColors.text.secondary }}>
+                            {new Date(comment.date).toLocaleString()}
+                          </span>
                         </div>
-                        <p className="mt-1 text-slate-700 whitespace-pre-wrap">{comment.content}</p>
+                        
+                        {/* 작성자에게만 보이는 수정/삭제 버튼 */}
+                        {user && user.uid === comment.authorId && (
+                          <div className="flex space-x-1">
+                            <button 
+                              onClick={() => startEditing(comment)}
+                              className="px-1"
+                              style={{ color: pcColors.text.secondary }}
+                              title="댓글 수정"
+                            >
+                              [수정]
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteComment(comment.id)}
+                              className="px-1"
+                              style={{ color: pcColors.text.error }}
+                              title="댓글 삭제"
+                            >
+                              [삭제]
+                            </button>
+                          </div>
+                        )}
                       </div>
+                      <p className="whitespace-pre-wrap" style={{ color: pcColors.text.primary }}>{comment.content}</p>
                     </div>
                   </>
                 )}
@@ -228,30 +238,35 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       
       {/* 댓글 작성 폼 - 게스트는 댓글 작성 폼 대신 안내 메시지 표시 */}
       {user && !user.isAnonymous ? (
-        <form onSubmit={handleSubmitComment} className="p-4 bg-slate-50">
-          <div className="flex items-start space-x-3">
-            <img 
-              src={userAvatar} 
-              alt={user.displayName || '사용자'} 
-              className="w-8 h-8 rounded-full"
-              onError={(e) => {
-                // 이미지 로드 실패 시 기본 이미지로 대체
-                (e.target as HTMLImageElement).src = defaultAvatar;
-              }}
-            />
+        <form onSubmit={handleSubmitComment} className="p-2 border-t" style={{ borderColor: pcColors.border.primary }}>
+          <div className="flex flex-col">
+            <div className="mb-1" style={{ color: pcColors.text.secondary }}>
+              {user.displayName || '사용자'} 님의 댓글
+            </div>
             <div className="flex-grow">
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="댓글을 작성하세요..."
-                className="w-full p-3 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 border font-pc"
+                style={{ 
+                  backgroundColor: pcColors.background.secondary,
+                  color: pcColors.text.primary,
+                  borderColor: pcColors.border.primary
+                }}
                 rows={2}
                 disabled={submitting}
               />
               <div className="mt-2 flex justify-end">
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  className="px-3 py-1 border"
+                  style={{ 
+                    borderColor: pcColors.border.primary,
+                    color: pcColors.text.accent,
+                    backgroundColor: pcColors.background.secondary,
+                    opacity: !newComment.trim() || submitting ? 0.5 : 1
+                  }}
                   disabled={!newComment.trim() || submitting}
                 >
                   {submitting ? '작성 중...' : '댓글 작성'}
@@ -261,12 +276,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
           </div>
         </form>
       ) : user && user.isAnonymous ? (
-        <div className="p-4 bg-slate-50 text-center text-slate-600">
-          게스트는 댓글을 작성할 수 없습니다. <a href="#" className="text-blue-600 hover:underline">로그인</a> 후 이용해주세요.
+        <div className="p-2 border-t text-center" 
+             style={{ borderColor: pcColors.border.primary, color: pcColors.text.secondary }}>
+          게스트는 댓글을 작성할 수 없습니다. <a href="#" style={{ color: pcColors.text.accent }}>로그인</a> 후 이용해주세요.
         </div>
       ) : (
-        <div className="p-4 bg-slate-50 text-center text-slate-600">
-          댓글을 작성하려면 <a href="#" className="text-blue-600 hover:underline">로그인</a>이 필요합니다.
+        <div className="p-2 border-t text-center" 
+             style={{ borderColor: pcColors.border.primary, color: pcColors.text.secondary }}>
+          댓글을 작성하려면 <a href="#" style={{ color: pcColors.text.accent }}>로그인</a>이 필요합니다.
         </div>
       )}
     </div>

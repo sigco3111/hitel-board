@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Menu, MenuItem as MenuItemType } from '../types';
+import { pcColors } from '../src/styles/colors';
+import { SPECIAL } from '../src/styles/asciiChars';
 
 const SubMenu: React.FC<{ items: MenuItemType[]; closeAllMenus: () => void }> = ({ items, closeAllMenus }) => {
   return (
-    <div className="absolute left-full -top-1 mt-0 w-48 bg-white/80 backdrop-blur-xl rounded-md shadow-2xl ring-1 ring-black/5 py-1 z-20">
+    <div className="absolute left-full -top-1 mt-0 w-48 z-20"
+         style={{ 
+           backgroundColor: pcColors.background.primary,
+           border: `1px solid ${pcColors.border.primary}`
+         }}>
       {items.map((item, index) => (
         <MenuItem key={index} item={item} closeAllMenus={closeAllMenus} />
       ))}
@@ -36,14 +42,14 @@ const MenuItem: React.FC<{ item: MenuItemType; closeAllMenus: () => void }> = ({
         <button
           onClick={handleItemClick}
           disabled={item.disabled}
-          className={`w-full text-left px-3 py-1 text-black text-sm flex justify-between items-center transition-colors duration-100
-          ${item.disabled
-            ? 'text-gray-400'
-            : 'hover:bg-blue-500 hover:text-white'
-          }`}
+          className="w-full text-left px-3 py-1 font-pc flex justify-between items-center"
+          style={{
+            color: item.disabled ? pcColors.text.disabled : pcColors.text.primary,
+            backgroundColor: 'transparent',
+          }}
         >
           <span>{item.label}</span>
-          {hasSubMenu && <span className="text-xs">▶</span>}
+          {hasSubMenu && <span className="text-xs">{SPECIAL.arrow}</span>}
         </button>
         {isSubMenuOpen && hasSubMenu && !item.disabled && item.items && (
           <SubMenu items={item.items} closeAllMenus={closeAllMenus} />
@@ -52,12 +58,18 @@ const MenuItem: React.FC<{ item: MenuItemType; closeAllMenus: () => void }> = ({
     );
   }
 
-  return <div className="h-px bg-slate-300/70 my-1 mx-2" />;
+  return <div className="h-px my-1 mx-2" style={{ backgroundColor: pcColors.border.primary }} />;
 };
 
 const MenuDropdown: React.FC<{ menu: Menu; closeAllMenus: () => void }> = ({ menu, closeAllMenus }) => {
   return (
-    <div className="absolute left-0 mt-1 w-56 bg-white/80 backdrop-blur-xl rounded-md shadow-2xl ring-1 ring-black/5 py-1 z-10">
+    <div 
+      className="absolute left-0 mt-0 w-56 z-10"
+      style={{ 
+        backgroundColor: pcColors.background.primary,
+        border: `1px solid ${pcColors.border.primary}`
+      }}
+    >
       {menu.items.map((item, index) => (
         <MenuItem key={index} item={item} closeAllMenus={closeAllMenus} />
       ))}
@@ -90,12 +102,24 @@ const WindowMenuBar: React.FC<WindowMenuBarProps> = ({ menus }) => {
   }
 
   return (
-    <div ref={menuBarRef} data-menu-bar className="relative flex items-center h-8 bg-slate-100/80 border-b border-slate-200/80 px-2 text-sm text-slate-800 flex-shrink-0">
+    <div 
+      ref={menuBarRef} 
+      data-menu-bar 
+      className="relative flex items-center h-8 border-b flex-shrink-0 font-pc"
+      style={{ 
+        borderColor: pcColors.border.primary,
+        backgroundColor: pcColors.background.primary
+      }}
+    >
       {menus.map((menu) => (
         <div key={menu.name} className="relative">
           <button 
             onClick={() => handleMenuToggle(menu.name)}
-            className={`px-3 py-0.5 rounded transition-colors duration-150 ${activeMenu === menu.name ? 'bg-blue-500 text-white' : 'hover:bg-slate-200/70'}`}
+            className="px-3 py-0.5"
+            style={{ 
+              backgroundColor: activeMenu === menu.name ? pcColors.selection.background : 'transparent',
+              color: activeMenu === menu.name ? pcColors.selection.text : pcColors.text.primary,
+            }}
           >
             {menu.name}
           </button>

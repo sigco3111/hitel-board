@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { UIPost } from '../src/types';
 import PostItem from './PostItem';
 import { SearchIcon } from './icons';
+import { pcColors } from '../src/styles/colors';
+import { BORDER_SINGLE, SPECIAL } from '../src/styles/asciiChars';
 
 interface PostListProps {
   posts: UIPost[];
@@ -23,6 +25,8 @@ const PostList: React.FC<PostListProps> = ({
   onSearch 
 }) => {
   const [inputValue, setInputValue] = useState(searchTerm);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 15; // 한 페이지에 표시할 게시물 수 증가 (스크롤 활용)
 
   // 검색어 입력 핸들러
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,50 +35,198 @@ const PostList: React.FC<PostListProps> = ({
     if (onSearch) {
       onSearch(value);
     }
+    // 검색 시 첫 페이지로 이동
+    setCurrentPage(1);
+  };
+
+  // 페이지 변경 시 처리
+  useEffect(() => {
+    // 게시물 목록이 변경되면 첫 페이지로 이동
+    setCurrentPage(1);
+  }, [posts.length]);
+
+  // 현재 페이지에 표시할 게시물 계산
+  const currentPosts = posts.slice(
+    (currentPage - 1) * postsPerPage,
+    currentPage * postsPerPage
+  );
+
+  // 총 페이지 수 계산
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+
+  // 페이지 이동 핸들러
+  const handlePageChange = useCallback((pageNumber: number) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  }, [totalPages]);
+
+  // 키보드 네비게이션 처리
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        
+        if (!selectedPost || currentPosts.length === 0) return;
+        
+        const currentIndex = currentPosts.findIndex(post => post.id === selectedPost.id);
+        
+        if (currentIndex === -1) {
+          // 현재 선택된 게시물이 목록에 없으면 첫 번째 게시물 선택
+          onSelectPost(currentPosts[0]);
+          return;
+        }
+        
+        if (e.key === 'ArrowUp' && currentIndex > 0) {
+          // 위 화살표: 이전 게시물 선택
+          onSelectPost(currentPosts[currentIndex - 1]);
+        } else if (e.key === 'ArrowDown' && currentIndex < currentPosts.length - 1) {
+          // 아래 화살표: 다음 게시물 선택
+          onSelectPost(currentPosts[currentIndex + 1]);
+        }
+      } else if (e.key === 'PageUp') {
+        // Page Up: 이전 페이지로 이동
+        handlePageChange(currentPage - 1);
+      } else if (e.key === 'PageDown') {
+        // Page Down: 다음 페이지로 이동
+        handlePageChange(currentPage + 1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedPost, currentPosts, onSelectPost, currentPage, handlePageChange]);
+
+  // 테이블 헤더 렌더링
+  const renderTableHeader = () => (
+    <div className="border-b border-pc-border-white px-2 py-1 font-pc" style={{ borderColor: pcColors.border.primary }}>
+      <div className="grid grid-cols-12 gap-1 text-pc-text-cyan" style={{ color: pcColors.text.secondary }}>
+        <div className="col-span-1 text-center">번호</div>
+        <div className="col-span-6">제목</div>
+        <div className="col-span-2">작성자</div>
+        <div className="col-span-2 text-center">날짜</div>
+        <div className="col-span-1 text-center">조회</div>
+      </div>
+    </div>
+  );
+
+  // 페이지 네비게이션 렌더링
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    
+    return (
+      <div className="border-t border-pc-border-white px-2 py-1 font-pc flex justify-center items-center" 
+           style={{ borderColor: pcColors.border.primary }}>
+        <button 
+          onClick={() => handlePageChange(1)} 
+          disabled={currentPage === 1}
+          className="px-1 mx-1"
+          style={{ color: currentPage === 1 ? pcColors.text.disabled : pcColors.text.secondary }}
+        >
+          {SPECIAL.leftArrow}{SPECIAL.leftArrow}
+        </button>
+        <button 
+          onClick={() => handlePageChange(currentPage - 1)} 
+          disabled={currentPage === 1}
+          className="px-1 mx-1"
+          style={{ color: currentPage === 1 ? pcColors.text.disabled : pcColors.text.secondary }}
+        >
+          {SPECIAL.leftArrow}
+        </button>
+        
+        <span className="mx-2 text-pc-text-white" style={{ color: pcColors.text.primary }}>
+          {currentPage} / {totalPages}
+        </span>
+        
+        <button 
+          onClick={() => handlePageChange(currentPage + 1)} 
+          disabled={currentPage === totalPages}
+          className="px-1 mx-1"
+          style={{ color: currentPage === totalPages ? pcColors.text.disabled : pcColors.text.secondary }}
+        >
+          {SPECIAL.arrow}
+        </button>
+        <button 
+          onClick={() => handlePageChange(totalPages)} 
+          disabled={currentPage === totalPages}
+          className="px-1 mx-1"
+          style={{ color: currentPage === totalPages ? pcColors.text.disabled : pcColors.text.secondary }}
+        >
+          {SPECIAL.arrow}{SPECIAL.arrow}
+        </button>
+      </div>
+    );
   };
 
   return (
-    <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg flex-shrink-0 bg-white flex flex-col h-full">
-      {/* 검색창 추가 */}
-      <div className="p-3 border-b border-slate-200">
-        <div className="relative flex items-center">
-          <SearchIcon className="w-5 h-5 text-slate-400 absolute left-3" />
+    <div className="w-full flex flex-col h-full">
+      {/* 검색창 */}
+      <div className="px-2 py-1 border-b border-pc-border-white" style={{ borderColor: pcColors.border.primary }}>
+        <div className="flex items-center">
+          <span className="text-pc-text-white mr-2 font-pc" style={{ color: pcColors.text.primary }}>검색:</span>
           <input
             type="text"
             value={inputValue}
             onChange={handleSearchInputChange}
             placeholder="게시물 검색..."
-            className="w-full py-2 pl-10 pr-4 bg-slate-100 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full py-1 px-2 font-pc text-pc-text-white bg-pc-bg-blue border border-pc-border-white"
+            style={{ 
+              backgroundColor: pcColors.background.secondary,
+              color: pcColors.text.primary,
+              borderColor: pcColors.border.primary
+            }}
           />
         </div>
       </div>
       
+      {/* 게시물 목록 테이블 */}
+      {renderTableHeader()}
+      
       {loading ? (
         <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="text-pc-text-yellow font-pc animate-pulse" style={{ color: pcColors.text.accent }}>
+            로딩 중...
+          </div>
         </div>
       ) : error ? (
-        <div className="text-center text-red-500 p-8">
+        <div className="text-center text-pc-text-red p-4 font-pc" style={{ color: pcColors.text.error }}>
           {error}
         </div>
       ) : (
-        <ul className="overflow-y-auto flex-grow">
-          {posts.length > 0 ? (
-            posts.map((post) => (
-              <PostItem
-                key={post.id}
-                post={post}
-                isSelected={selectedPost && post.id === selectedPost.id}
-                onClick={() => onSelectPost(post)}
-              />
-            ))
+        <div 
+          className="flex-grow overflow-y-auto" 
+          style={{ 
+            scrollbarWidth: 'thin', 
+            scrollbarColor: `${pcColors.border.primary} ${pcColors.background.secondary}`,
+            msOverflowStyle: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            maxHeight: 'calc(100% - 80px)' // 검색창, 테이블 헤더, 페이지네이션 영역을 제외한 높이
+          }}
+        >
+          {currentPosts.length > 0 ? (
+            <div>
+              {currentPosts.map((post) => (
+                <PostItem
+                  key={post.id}
+                  post={post}
+                  isSelected={selectedPost && post.id === selectedPost.id}
+                  onClick={() => onSelectPost(post)}
+                  index={(currentPage - 1) * postsPerPage + currentPosts.indexOf(post) + 1}
+                />
+              ))}
+            </div>
           ) : (
-            <div className="text-center text-slate-500 p-8">
+            <div className="text-center text-pc-text-cyan p-4 font-pc" style={{ color: pcColors.text.secondary }}>
               {inputValue ? `'${inputValue}'에 대한 검색 결과가 없습니다.` : '게시물이 없습니다.'}
             </div>
           )}
-        </ul>
+        </div>
       )}
+      
+      {/* 페이지 네비게이션 */}
+      {renderPagination()}
     </div>
   );
 };

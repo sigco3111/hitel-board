@@ -127,7 +127,7 @@ const TextBox: React.FC<TextBoxProps> = ({
   return (
     <div 
       ref={containerRef}
-      className={`relative font-pc ${className}`}
+      className={`relative font-pc flex flex-col ${className}`}
       style={{ 
         width, 
         height,
@@ -163,12 +163,12 @@ const TextBox: React.FC<TextBoxProps> = ({
       
       {/* 콘텐츠 영역 */}
       <div 
-        className="flex"
+        className="flex flex-grow overflow-hidden"
         style={{ minHeight: '2rem' }}
       >
         <div style={{ color: borderColor }}>{borderChars?.vertical}</div>
         <div 
-          className="flex-grow"
+          className="flex-grow overflow-auto"
           style={{ 
             padding, 
             textAlign

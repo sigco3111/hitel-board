@@ -13,10 +13,16 @@ import { usePosts } from '../src/hooks/usePosts.tsx';
 import { useBookmarks } from '../src/hooks/useBookmarks';
 import { deletePost, updatePost, createPost, movePost } from '../src/services/firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
+// PC통신 스타일 컴포넌트 및 스타일 임포트
+import PCLayout from '../src/components/pc-components/PCLayout';
+import TextBox from '../src/components/pc-components/TextBox';
+import PCMenu from '../src/components/pc-components/PCMenu';
+import { pcColors } from '../src/styles/colors';
+import { SPECIAL } from '../src/styles/asciiChars';
 
 // 기본 카테고리 데이터 (Firestore 로드 전에 임시로 사용)
 const defaultCategories: Category[] = [
-  { id: 'all', name: '모든 게시물', icon: <MessagesSquareIcon /> }
+  { id: 'all', name: '모든 게시물', icon: '📄' } // 아이콘을 string으로 변경
 ];
 
 interface BulletinBoardProps {
@@ -479,7 +485,7 @@ const BulletinBoard: React.FC<BulletinBoardProps> = ({ onClose, user, initialSho
     }, 20);
   }, [showBookmarks, clearSelection, refreshBookmarks, refreshPosts]);
 
-  // 태그 선택 처리
+  // 태그 선택 핸들러 (에러 방지를 위한 처리 추가)
   const handleSelectTag = useCallback((tag: string | null) => {
     console.log('태그 선택:', tag);
     
@@ -830,75 +836,99 @@ const BulletinBoard: React.FC<BulletinBoardProps> = ({ onClose, user, initialSho
         minHeight: `${minSize.height}px`,
         transition: isDragging || isResizing ? 'none' : 'width 0.2s ease, height 0.2s ease, top 0.2s ease, left 0.2s ease'
       }}
-      className={`bg-white/80 backdrop-blur-xl flex flex-col overflow-hidden ${isMaximized ? 'rounded-none shadow-none border-none' : 'rounded-xl shadow-2xl border border-slate-300/80'}`}
+      className="overflow-hidden"
     >
-      <header
-        onMouseDown={handleDragStart}
-        onDoubleClick={handleToggleMaximize}
-        className={`flex-shrink-0 h-14 flex items-center px-4 border-b border-slate-200/80 ${!isMaximized ? 'cursor-grab active:cursor-grabbing' : ''}`}
-      >
-        <TrafficLights onClose={onClose} onMinimize={handleMinimize} onMaximize={handleToggleMaximize} />
-        <div className="flex-grow text-center">
-           <h1 className="font-semibold text-slate-700 select-none">
-              {showBookmarks ? "북마크" : "게시판"}
-           </h1>
-        </div>
-        <div className="w-16 flex justify-end">
-          {!user?.isAnonymous && (
-            <button 
-              onClick={handleToggleBookmarks}
-              className={`p-2 rounded-full transition-colors ${showBookmarks ? 'bg-blue-100 text-blue-600' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
-              title={showBookmarks ? "모든 게시물 보기" : "북마크만 보기"}
-            >
-              <BookmarkIcon className="w-5 h-5" fill={showBookmarks ? "currentColor" : "none"} />
-            </button>
-          )}
-        </div>
-      </header>
-      <WindowMenuBar menus={menus} />
-      <main className="flex flex-grow overflow-hidden" style={{ height: 'calc(100% - 56px - 32px)'}}>
-        <Sidebar 
-          categories={sidebarCategories}
-          selectedCategory={selectedCategory} 
-          onSelectCategory={handleSelectCategory}
-          onNewPost={handleOpenNewPost}
-          allTags={availableTags} 
-          selectedTag={selectedTag}
-          onSelectTag={handleSelectTag}
-          showBookmarks={showBookmarks} 
-        />
-        <div className="flex-1 flex flex-row overflow-hidden">
-          <div className="w-1/3 flex flex-col overflow-hidden">
-            <PostList 
-              posts={filteredPosts} 
-              selectedPost={selectedPost} 
-              onSelectPost={handleSelectPost} 
-              loading={loading}
-              error={errorMessage}
-              searchTerm={searchTerm}
-              onSearch={(term) => setSearchTerm(term)}
-            />
+      {/* PC통신 스타일 레이아웃 적용 */}
+      <PCLayout fullScreen={false} className="flex flex-col h-full">
+        {/* 상단 헤더 */}
+        <div 
+          onMouseDown={handleDragStart}
+          onDoubleClick={handleToggleMaximize}
+          className="flex-shrink-0 h-8 flex items-center px-2 border-b border-pc-border-white cursor-grab active:cursor-grabbing"
+          style={{ borderColor: pcColors.border.primary }}
+        >
+          <TrafficLights onClose={onClose} onMinimize={handleMinimize} onMaximize={handleToggleMaximize} />
+          <div className="flex-grow text-center">
+            <h1 className="font-pc font-bold text-pc-text-yellow" style={{ color: pcColors.text.accent }}>
+              {showBookmarks ? "★ 북마크 ★" : "★ PC통신 게시판 ★"}
+            </h1>
           </div>
-          <div className="flex-1 overflow-auto bg-slate-50">
-            {selectedPost ? (
-              <PostDetail 
-                post={selectedPost} 
-                onEditPost={handleOpenEditModal} 
-                onDeletePost={requestDeletePost}
-                onSelectTag={handleSelectTag}
-                categories={categories.filter(cat => cat.id !== 'all')} // 'all' 카테고리는 제외
-                isPostOwner={isPostOwner(selectedPost)}
-                onRefresh={refreshPostData}
-                userId={user?.uid}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-slate-500">
-                게시물을 선택하세요.
-              </div>
+          <div className="w-16 flex justify-end">
+            {!user?.isAnonymous && (
+              <button 
+                onClick={handleToggleBookmarks}
+                className="p-1 transition-colors"
+                style={{ color: showBookmarks ? pcColors.text.accent : pcColors.text.primary }}
+                title={showBookmarks ? "모든 게시물 보기" : "북마크만 보기"}
+              >
+                <span>{showBookmarks ? SPECIAL.star : SPECIAL.emptyStar}</span>
+              </button>
             )}
           </div>
         </div>
-      </main>
+        
+        {/* PC통신 스타일 메뉴바 */}
+        <WindowMenuBar menus={menus} />
+        
+        {/* 메인 콘텐츠 영역 */}
+        <main className="flex flex-grow overflow-hidden" style={{ height: 'calc(100% - 64px)'}}>
+          {/* 왼쪽 사이드바 */}
+          <div className="w-60 flex-shrink-0 border-r" style={{ borderColor: pcColors.border.primary }}>
+            <Sidebar 
+              categories={sidebarCategories}
+              selectedCategory={selectedCategory} 
+              onSelectCategory={handleSelectCategory}
+              onNewPost={handleOpenNewPost}
+              allTags={availableTags} 
+              selectedTag={selectedTag}
+              onSelectTag={handleSelectTag}
+              showBookmarks={showBookmarks} 
+            />
+          </div>
+          
+          {/* 메인 콘텐츠 */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* 게시물 목록 */}
+            <div className="h-1/2 overflow-auto border-b" style={{ borderColor: pcColors.border.primary }}>
+              <TextBox title="게시물 목록" borderStyle="single" className="h-full">
+                <PostList 
+                  posts={filteredPosts} 
+                  selectedPost={selectedPost} 
+                  onSelectPost={handleSelectPost} 
+                  loading={loading}
+                  error={errorMessage}
+                  searchTerm={searchTerm}
+                  onSearch={(term) => setSearchTerm(term)}
+                />
+              </TextBox>
+            </div>
+            
+            {/* 게시물 상세 */}
+            <div className="flex-1 overflow-auto">
+              <TextBox title="게시물 내용" borderStyle="single" className="h-full">
+                {selectedPost ? (
+                  <PostDetail 
+                    post={selectedPost} 
+                    onEditPost={handleOpenEditModal} 
+                    onDeletePost={requestDeletePost}
+                    onSelectTag={handleSelectTag}
+                    categories={categories.filter(cat => cat.id !== 'all')} // 'all' 카테고리는 제외
+                    isPostOwner={isPostOwner(selectedPost)}
+                    onRefresh={refreshPostData}
+                    userId={user?.uid}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-pc-text-cyan" style={{ color: pcColors.text.secondary }}>
+                    게시물을 선택하세요.
+                  </div>
+                )}
+              </TextBox>
+            </div>
+          </div>
+        </main>
+      </PCLayout>
+      
+      {/* 모달 및 토스트는 기존 코드 유지 */}
       {isModalOpen && (
         <NewPostModal 
           categories={categories.filter(c => c.id !== 'all')} 
@@ -926,19 +956,22 @@ const BulletinBoard: React.FC<BulletinBoardProps> = ({ onClose, user, initialSho
             cancelButtonText="취소"
         />
       )}
-       <div
-          onMouseDown={handleResizeStart}
-          className={`absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20 ${isMaximized ? 'hidden' : ''}`}
-          aria-label="Resize window"
-        >
-          <svg className="w-full h-full text-slate-400 opacity-60" fill="none" viewBox="0 0 16 16" stroke="currentColor">
-              <path d="M 12 4 L 4 12" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M 12 7 L 7 12" strokeWidth="1.5" strokeLinecap="round" />
-              <path d="M 12 10 L 10 12" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
+      
+      {/* 크기 조절 핸들 */}
+      <div
+        onMouseDown={handleResizeStart}
+        className={`absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20 ${isMaximized ? 'hidden' : ''}`}
+        aria-label="Resize window"
+        style={{ color: pcColors.text.secondary }}
+      >
+        <svg className="w-full h-full opacity-60" fill="none" viewBox="0 0 16 16" stroke="currentColor">
+            <path d="M 12 4 L 4 12" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M 12 7 L 7 12" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M 12 10 L 10 12" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
       </div>
       
-      {/* 토스트 메시지 추가 */}
+      {/* 토스트 메시지 */}
       {toast.visible && (
         <Toast
           message={toast.message}

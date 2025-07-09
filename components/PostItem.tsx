@@ -2,15 +2,17 @@ import React, { useEffect } from 'react';
 import type { UIPost } from '../src/types';
 import { useAuth } from '../src/hooks/useAuth';
 import { useBookmarks } from '../src/hooks/useBookmarks';
-import { MessagesSquareIcon, BookmarkIcon } from './icons';
+import { SPECIAL } from '../src/styles/asciiChars';
+import { pcColors } from '../src/styles/colors';
 
 interface PostItemProps {
   post: UIPost;
   isSelected: boolean;
   onClick: () => void;
+  index: number; // 게시물 번호 (페이징 처리를 위해 추가)
 }
 
-const PostItem: React.FC<PostItemProps> = ({ post, isSelected, onClick }) => {
+const PostItem: React.FC<PostItemProps> = ({ post, isSelected, onClick, index }) => {
   // 인증 정보 가져오기
   const { user } = useAuth();
   // 북마크 기능 사용
@@ -23,14 +25,6 @@ const PostItem: React.FC<PostItemProps> = ({ post, isSelected, onClick }) => {
     }
   }, [post.id, user, checkBookmarkStatus]);
   
-  // 기본 프로필 이미지
-  const defaultAvatar = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+`;
-
-  // 현재 사용자가 글 작성자와 일치하고 구글 로그인 사용자라면 해당 프로필 이미지 사용
-  const avatarUrl = (user && user.uid === post.authorId && !user.isAnonymous && user.photoURL) 
-    ? user.photoURL 
-    : defaultAvatar;
-
   // 북마크 토글 처리
   const handleBookmarkToggle = (e: React.MouseEvent) => {
     e.stopPropagation(); // 부모 onClick 이벤트 전파 방지
@@ -43,70 +37,93 @@ const PostItem: React.FC<PostItemProps> = ({ post, isSelected, onClick }) => {
       toggleBookmark(post.id, user.isAnonymous);
     }
   };
-
-  // 북마크 상태에 따른 아이콘 설정
-  const bookmarkFill = isBookmarked(post.id) ? 'currentColor' : 'none';
   
-  // 날짜 간소화 표시 (MM.DD 형식)
+  // 북마크 상태 확인 (타입 안전하게 처리)
+  const isPostBookmarked = Boolean(isBookmarked(post.id));
+  
+  // 날짜 간소화 표시 (MM-DD 형식)
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return `${date.getMonth() + 1}.${date.getDate()}`;
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${month}-${day}`;
+  };
+
+  // 제목 최대 길이 제한 (PC통신 스타일에 맞게)
+  const truncateTitle = (title: string, maxLength: number = 30) => {
+    if (title.length <= maxLength) return title;
+    return title.substring(0, maxLength) + '...';
   };
 
   return (
-    <li
+    <div
       onClick={onClick}
-      className={`py-2 px-3 border-b border-slate-200 cursor-pointer transition-colors duration-150 ${
-        isSelected ? 'bg-blue-100/70' : 'hover:bg-slate-50'
+      className={`px-2 py-0.5 font-pc border-b cursor-pointer ${
+        isSelected ? 'bg-pc-selection-bg' : ''
       }`}
+      style={{ 
+        backgroundColor: isSelected ? pcColors.selection.background : 'transparent',
+        borderColor: pcColors.border.primary,
+        borderBottomWidth: '1px'
+      }}
     >
-      <div className="grid grid-cols-10 gap-2 w-full items-center">
-        {/* 프로필 이미지 (1/10) */}
-        <div className="col-span-1">
-          <img 
-            src={avatarUrl} 
-            alt={post.author.name} 
-            className="w-7 h-7 rounded-full"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = defaultAvatar;
-            }}
-          />
+      <div className="grid grid-cols-12 gap-1 items-center">
+        {/* 게시물 번호 */}
+        <div className="col-span-1 text-center" 
+             style={{ color: isSelected ? pcColors.selection.text : pcColors.text.primary }}>
+          {index}
         </div>
         
-        {/* 제목 및 작성자 (6/10) */}
-        <div className="col-span-6 min-w-0 overflow-hidden pr-1">
-          <div className="flex items-center">
-            <p className={`font-medium text-xs ${isSelected ? 'text-blue-800' : 'text-slate-600'} truncate mr-2`}>{post.author.name}</p>
-            {post.isNew && <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></span>}
-          </div>
-          <h3 className={`font-bold text-sm truncate ${isSelected ? 'text-slate-900' : 'text-slate-900'}`}>{post.title}</h3>
+        {/* 제목 */}
+        <div className="col-span-6 truncate flex items-center" 
+             style={{ color: isSelected ? pcColors.selection.text : pcColors.text.primary }}>
+          {/* 북마크 표시 */}
+          {isPostBookmarked && (
+            <span className="mr-1" style={{ color: isSelected ? pcColors.selection.text : pcColors.text.accent }}>
+              {SPECIAL.star}
+            </span>
+          )}
+          
+          {/* 새 게시물 표시 */}
+          {post.isNew && (
+            <span className="mr-1" style={{ color: isSelected ? pcColors.selection.text : pcColors.text.accent }}>
+              N
+            </span>
+          )}
+          
+          {/* 댓글 수 표시 */}
+          {post.comments > 0 && (
+            <span className="mr-1" style={{ color: isSelected ? pcColors.selection.text : pcColors.text.secondary }}>
+              [{post.comments}]
+            </span>
+          )}
+          
+          {/* 제목 */}
+          <span className={isSelected ? '' : 'hover:text-pc-text-yellow'}>
+            {truncateTitle(post.title)}
+          </span>
         </div>
         
-        {/* 댓글수, 날짜, 북마크 (3/10) */}
-        <div className="col-span-3 flex flex-col items-end justify-center h-full">
-          <div className="flex items-center text-xs text-slate-500 w-full justify-end">
-            {post.comments > 0 && (
-              <div className="flex items-center text-slate-600 mr-2">
-                <MessagesSquareIcon className="w-3.5 h-3.5 mr-0.5 flex-shrink-0" />
-                <span>{post.comments}</span>
-              </div>
-            )}
-            <span className="whitespace-nowrap text-blue-600 font-medium">{formatDate(post.date)}</span>
-          </div>
-          <div className="flex items-center mt-1 justify-end">
-            {user && !user.isAnonymous && (
-              <button 
-                onClick={handleBookmarkToggle}
-                className={`transition-colors ${isBookmarked(post.id) ? 'text-blue-500' : 'text-slate-400 hover:text-blue-500'}`}
-                title={isBookmarked(post.id) ? "북마크 해제" : "북마크 추가"}
-              >
-                <BookmarkIcon className="w-4 h-4" fill={bookmarkFill} />
-              </button>
-            )}
-          </div>
+        {/* 작성자 */}
+        <div className="col-span-2 truncate" 
+             style={{ color: isSelected ? pcColors.selection.text : pcColors.text.secondary }}>
+          {post.author.name}
+        </div>
+        
+        {/* 날짜 */}
+        <div className="col-span-2 text-center" 
+             style={{ color: isSelected ? pcColors.selection.text : pcColors.text.secondary }}>
+          {formatDate(post.date)}
+        </div>
+        
+        {/* 조회수 */}
+        <div className="col-span-1 text-center" 
+             style={{ color: isSelected ? pcColors.selection.text : pcColors.text.secondary }}>
+          {/* UIPost 타입에는 viewCount가 없으므로 기본값 0 사용 */}
+          0
         </div>
       </div>
-    </li>
+    </div>
   );
 };
 

@@ -3,6 +3,12 @@ import type { Category, Post, UIPost } from '../src/types';
 import MDEditor from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
+import { pcColors } from '../src/styles/colors';
+import { BORDER_SINGLE, SPECIAL } from '../src/styles/asciiChars';
+import TextBox from '../src/components/pc-components/TextBox';
+
+// PC통신 스타일 마크다운 에디터 스타일 오버라이드
+import './pc-markdown-override.css';
 
 interface NewPostModalProps {
   categories: Category[];
@@ -13,13 +19,19 @@ interface NewPostModalProps {
   selectedCategory: string | null;
 }
 
+/**
+ * 게시물 작성 및 수정을 위한 모달 컴포넌트
+ * PC통신 스타일의 텍스트 기반 입력 폼을 제공합니다.
+ */
 const NewPostModal: React.FC<NewPostModalProps> = ({ categories, onClose, onSave, postToEdit, allTags, selectedCategory }) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [content, setContent] = useState('');
-  const [colorMode, setColorMode] = useState<'light' | 'dark'>('light');
+  const [colorMode, setColorMode] = useState<'light' | 'dark'>('dark'); // PC통신 스타일은 어두운 배경이므로 dark 모드 기본값
   
   const [tags, setTags] = useState(''); // 태그 상태를 문자열로 변경
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
 
   const isEditing = postToEdit != null;
 
@@ -82,22 +94,36 @@ const NewPostModal: React.FC<NewPostModalProps> = ({ categories, onClose, onSave
     }
   }, [postToEdit, isEditing, categories, selectedCategory]);
 
-  // 시스템 다크 모드 감지
+  // 태그 입력 시 자동 완성 기능
   useEffect(() => {
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setColorMode(isDarkMode ? 'dark' : 'light');
+    if (tags.trim() === '') {
+      setTagSuggestions([]);
+      setShowTagSuggestions(false);
+      return;
+    }
 
-    // 시스템 다크 모드 변경 감지 이벤트 리스너
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      setColorMode(e.matches ? 'dark' : 'light');
-    };
+    const lastTag = tags.split(',').pop()?.trim() || '';
+    if (lastTag.length > 0) {
+      const filteredTags = allTags
+        .filter(tag => tag.toLowerCase().includes(lastTag.toLowerCase()) && tag.toLowerCase() !== lastTag.toLowerCase())
+        .slice(0, 5); // 최대 5개만 표시
+      
+      setTagSuggestions(filteredTags);
+      setShowTagSuggestions(filteredTags.length > 0);
+    } else {
+      setTagSuggestions([]);
+      setShowTagSuggestions(false);
+    }
+  }, [tags, allTags]);
+
+  const handleTagSelect = (selectedTag: string) => {
+    const tagParts = tags.split(',');
+    const lastTagIndex = tagParts.length - 1;
+    tagParts[lastTagIndex] = ` ${selectedTag}`;
     
-    mediaQuery.addEventListener('change', handleChange);
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange);
-    };
-  }, []);
+    setTags(tagParts.join(','));
+    setShowTagSuggestions(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,86 +160,165 @@ const NewPostModal: React.FC<NewPostModalProps> = ({ categories, onClose, onSave
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl m-4 transform transition-all" onClick={(e) => e.stopPropagation()}>
-        <div className="p-6 border-b border-slate-200">
-          <h2 className="text-xl font-semibold text-slate-800">{isEditing ? '게시물 수정' : '새 게시물 작성'}</h2>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="p-6 space-y-4">
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-slate-700 mb-1">제목</label>
-              <input
-                id="title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="게시물 제목"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-slate-700 mb-1">카테고리</label>
-              <select
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                required
-              >
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-            
-            {/* TAGS SECTION */}
-            <div>
-              <label htmlFor="tags-input" className="block text-sm font-medium text-slate-700 mb-1">태그</label>
-              <input
-                id="tags-input"
-                type="text"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                className="w-full border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="쉼표(,)로 구분하여 태그를 입력하세요."
-              />
-            </div>
-
-            <div>
-              <label htmlFor="content" className="block text-sm font-medium text-slate-700 mb-1">내용</label>
-              <div data-color-mode={colorMode} className="w-full">
-                <MDEditor
-                  id="content"
-                  value={content}
-                  onChange={(value) => setContent(value || '')}
-                  height={300}
-                  preview="edit"
-                  className="w-full"
+    <div 
+      className="fixed inset-0 flex items-center justify-center z-50 transition-opacity font-pc"
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(3px)' }}
+      onClick={onClose}
+    >
+      <div 
+        className="w-full max-w-3xl m-4 transform transition-all"
+        style={{ backgroundColor: pcColors.background.primary, color: pcColors.text.primary }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <TextBox 
+          title={isEditing ? '게시물 수정' : '새 게시물 작성'} 
+          borderStyle="double"
+          className="w-full"
+        >
+          <form onSubmit={handleSubmit} className="p-4">
+            <div className="space-y-4">
+              {/* 제목 입력 */}
+              <div>
+                <div className="flex mb-1">
+                  <span style={{ color: pcColors.text.accent }}>{SPECIAL.arrow}</span>
+                  <label htmlFor="title" className="ml-2 font-bold" style={{ color: pcColors.text.accent }}>제목</label>
+                </div>
+                <input
+                  id="title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full p-2 border font-pc"
+                  style={{ 
+                    backgroundColor: pcColors.background.secondary,
+                    color: pcColors.text.primary,
+                    borderColor: pcColors.border.primary
+                  }}
+                  placeholder="게시물 제목"
+                  required
                 />
-                <div className="mt-1 text-xs text-slate-500">
-                  마크다운 문법을 사용하여 글을 작성할 수 있습니다.
+              </div>
+
+              {/* 카테고리 선택 */}
+              <div>
+                <div className="flex mb-1">
+                  <span style={{ color: pcColors.text.accent }}>{SPECIAL.arrow}</span>
+                  <label htmlFor="category" className="ml-2 font-bold" style={{ color: pcColors.text.accent }}>카테고리</label>
+                </div>
+                <select
+                  id="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full p-2 border font-pc"
+                  style={{ 
+                    backgroundColor: pcColors.background.secondary,
+                    color: pcColors.text.primary,
+                    borderColor: pcColors.border.primary
+                  }}
+                  required
+                >
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* 태그 입력 */}
+              <div className="relative">
+                <div className="flex mb-1">
+                  <span style={{ color: pcColors.text.accent }}>{SPECIAL.arrow}</span>
+                  <label htmlFor="tags-input" className="ml-2 font-bold" style={{ color: pcColors.text.accent }}>태그</label>
+                </div>
+                <input
+                  id="tags-input"
+                  type="text"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  className="w-full p-2 border font-pc"
+                  style={{ 
+                    backgroundColor: pcColors.background.secondary,
+                    color: pcColors.text.primary,
+                    borderColor: pcColors.border.primary
+                  }}
+                  placeholder="쉼표(,)로 구분하여 태그를 입력하세요."
+                />
+                
+                {/* 태그 자동완성 */}
+                {showTagSuggestions && (
+                  <div 
+                    className="absolute z-10 w-full mt-1 border font-pc"
+                    style={{ 
+                      backgroundColor: pcColors.background.secondary,
+                      borderColor: pcColors.border.primary
+                    }}
+                  >
+                    {tagSuggestions.map((tag, index) => (
+                      <div 
+                        key={index} 
+                        className="p-1 cursor-pointer"
+                        style={{ 
+                          color: pcColors.text.primary,
+                          borderBottom: index < tagSuggestions.length - 1 ? `1px solid ${pcColors.border.primary}` : 'none'
+                        }}
+                        onClick={() => handleTagSelect(tag)}
+                      >
+                        {tag}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 내용 입력 */}
+              <div>
+                <div className="flex mb-1">
+                  <span style={{ color: pcColors.text.accent }}>{SPECIAL.arrow}</span>
+                  <label htmlFor="content" className="ml-2 font-bold" style={{ color: pcColors.text.accent }}>내용</label>
+                </div>
+                <div data-color-mode={colorMode} className="w-full pc-markdown-editor">
+                  <MDEditor
+                    id="content"
+                    value={content}
+                    onChange={(value) => setContent(value || '')}
+                    height={300}
+                    preview="edit"
+                    className="w-full pc-md-editor"
+                  />
+                  <div className="mt-1 text-xs" style={{ color: pcColors.text.secondary }}>
+                    마크다운 문법을 사용하여 글을 작성할 수 있습니다.
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="bg-slate-50 px-6 py-4 flex justify-end space-x-3 rounded-b-xl">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              {isEditing ? '저장' : '게시'}
-            </button>
-          </div>
-        </form>
+            
+            {/* 버튼 영역 */}
+            <div className="mt-6 pt-4 border-t flex justify-end space-x-3" style={{ borderColor: pcColors.border.primary }}>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border font-pc"
+                style={{ 
+                  backgroundColor: pcColors.background.secondary,
+                  color: pcColors.text.secondary,
+                  borderColor: pcColors.border.primary
+                }}
+              >
+                취소
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 border font-pc"
+                style={{ 
+                  backgroundColor: pcColors.background.secondary,
+                  color: pcColors.text.accent,
+                  borderColor: pcColors.border.primary
+                }}
+              >
+                {isEditing ? '저장' : '게시'}
+              </button>
+            </div>
+          </form>
+        </TextBox>
       </div>
     </div>
   );

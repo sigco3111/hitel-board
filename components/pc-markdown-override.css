@@ -1,0 +1,147 @@
+/* PC통신 스타일 마크다운 에디터 오버라이드 */
+
+/* 에디터 전체 스타일 */
+.pc-markdown-editor .w-md-editor {
+  background-color: #000080 !important;
+  color: #00ffff !important;
+  border: 1px solid #00ffff !important;
+  font-family: 'DOS', 'Courier New', monospace !important;
+}
+
+/* 에디터 툴바 스타일 */
+.pc-markdown-editor .w-md-editor-toolbar {
+  background-color: #000080 !important;
+  border-bottom: 1px solid #00ffff !important;
+}
+
+.pc-markdown-editor .w-md-editor-toolbar ul > li > button {
+  color: #00ffff !important;
+}
+
+.pc-markdown-editor .w-md-editor-toolbar ul > li > button:hover {
+  color: #ffffff !important;
+  background-color: #0000aa !important;
+}
+
+/* 에디터 텍스트 영역 스타일 */
+.pc-markdown-editor .w-md-editor-text {
+  background-color: #000080 !important;
+  color: #00ffff !important;
+}
+
+.pc-markdown-editor .w-md-editor-text-pre,
+.pc-markdown-editor .w-md-editor-text-input {
+  color: #00ffff !important;
+  font-family: 'DOS', 'Courier New', monospace !important;
+}
+
+/* 미리보기 영역 스타일 */
+.pc-markdown-editor .w-md-editor-preview {
+  background-color: #000080 !important;
+  box-shadow: inset 1px 0 0 0 #00ffff !important;
+}
+
+/* 마크다운 미리보기 스타일 */
+.pc-markdown-editor .wmde-markdown {
+  background-color: #000080 !important;
+  color: #00ffff !important;
+  font-family: 'DOS', 'Courier New', monospace !important;
+}
+
+/* 헤딩 스타일 */
+.pc-markdown-editor .wmde-markdown h1,
+.pc-markdown-editor .wmde-markdown h2,
+.pc-markdown-editor .wmde-markdown h3,
+.pc-markdown-editor .wmde-markdown h4,
+.pc-markdown-editor .wmde-markdown h5,
+.pc-markdown-editor .wmde-markdown h6 {
+  color: #ffffff !important;
+  border-bottom: 1px solid #00ffff !important;
+}
+
+/* 링크 스타일 */
+.pc-markdown-editor .wmde-markdown a {
+  color: #ffff00 !important;
+  text-decoration: underline !important;
+}
+
+/* 코드 블록 스타일 */
+.pc-markdown-editor .wmde-markdown pre {
+  background-color: #000040 !important;
+  border: 1px solid #00ffff !important;
+}
+
+.pc-markdown-editor .wmde-markdown code {
+  background-color: #000040 !important;
+  color: #00ff00 !important;
+  font-family: 'DOS', 'Courier New', monospace !important;
+}
+
+/* 인용구 스타일 */
+.pc-markdown-editor .wmde-markdown blockquote {
+  border-left: 4px solid #00ffff !important;
+  background-color: #000040 !important;
+  color: #00ffff !important;
+}
+
+/* 테이블 스타일 */
+.pc-markdown-editor .wmde-markdown table {
+  border-collapse: collapse !important;
+}
+
+.pc-markdown-editor .wmde-markdown table th,
+.pc-markdown-editor .wmde-markdown table td {
+  border: 1px solid #00ffff !important;
+  padding: 6px 13px !important;
+}
+
+.pc-markdown-editor .wmde-markdown table th {
+  background-color: #000040 !important;
+  color: #ffffff !important;
+}
+
+/* 목록 스타일 */
+.pc-markdown-editor .wmde-markdown ul,
+.pc-markdown-editor .wmde-markdown ol {
+  color: #00ffff !important;
+}
+
+/* 구분선 스타일 */
+.pc-markdown-editor .wmde-markdown hr {
+  border: 0 !important;
+  border-top: 1px solid #00ffff !important;
+}
+
+/* 에디터 상태바 스타일 */
+.pc-markdown-editor .w-md-editor-bar {
+  background-color: #000080 !important;
+}
+
+/* 스크롤바 스타일 */
+.pc-markdown-editor ::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.pc-markdown-editor ::-webkit-scrollbar-track {
+  background: #000040 !important;
+}
+
+.pc-markdown-editor ::-webkit-scrollbar-thumb {
+  background-color: #00ffff !important;
+}
+
+/* 포커스 스타일 */
+.pc-markdown-editor .w-md-editor-text-input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 마크다운 강조 스타일 */
+.pc-markdown-editor .wmde-markdown strong {
+  color: #ffffff !important;
+}
+
+.pc-markdown-editor .wmde-markdown em {
+  color: #ffff00 !important;
+} 

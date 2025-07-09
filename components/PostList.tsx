@@ -163,22 +163,56 @@ const PostList: React.FC<PostListProps> = ({
   return (
     <div className="w-full flex flex-col h-full">
       {/* 검색창 */}
-      <div className="px-2 py-1 border-b border-pc-border-white" style={{ borderColor: pcColors.border.primary }}>
+      <div className="px-2 py-2 border-b" style={{ borderColor: pcColors.border.primary }}>
         <div className="flex items-center">
-          <span className="text-pc-text-white mr-2 font-pc" style={{ color: pcColors.text.primary }}>검색:</span>
-          <input
-            type="text"
-            value={inputValue}
-            onChange={handleSearchInputChange}
-            placeholder="게시물 검색..."
-            className="w-full py-1 px-2 font-pc text-pc-text-white bg-pc-bg-blue border border-pc-border-white"
-            style={{ 
-              backgroundColor: pcColors.background.secondary,
-              color: pcColors.text.primary,
-              borderColor: pcColors.border.primary
-            }}
-          />
+          <div className="flex items-center mr-2">
+            <span style={{ color: pcColors.text.accent }}>{SPECIAL.arrow}</span>
+            <span className="ml-2 font-bold" style={{ color: pcColors.text.accent }}>검색</span>
+          </div>
+          <div className="flex-grow flex items-center border" 
+               style={{ borderColor: pcColors.border.primary, backgroundColor: pcColors.background.secondary }}>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleSearchInputChange}
+              placeholder="검색어를 입력하세요..."
+              className="w-full py-1 px-2 font-pc border-none outline-none"
+              style={{ 
+                backgroundColor: pcColors.background.secondary,
+                color: pcColors.text.primary,
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && onSearch) {
+                  onSearch(inputValue);
+                }
+              }}
+            />
+            <button 
+              className="px-2 py-1 border-l flex items-center justify-center"
+              style={{ 
+                borderColor: pcColors.border.primary,
+                backgroundColor: pcColors.background.secondary,
+                color: pcColors.text.secondary
+              }}
+              onClick={() => onSearch && onSearch(inputValue)}
+              title="검색"
+            >
+              {SPECIAL.bullet} 검색
+            </button>
+          </div>
         </div>
+        
+        {/* 검색 결과 정보 */}
+        {inputValue && (
+          <div className="mt-1 text-sm" style={{ color: pcColors.text.secondary }}>
+            <span className="mr-1">{SPECIAL.bullet}</span>
+            <span>
+              {posts.length > 0 
+                ? `'${inputValue}'에 대한 검색 결과: ${posts.length}개의 게시물` 
+                : `'${inputValue}'에 대한 검색 결과가 없습니다.`}
+            </span>
+          </div>
+        )}
       </div>
       
       {/* 게시물 목록 테이블 */}

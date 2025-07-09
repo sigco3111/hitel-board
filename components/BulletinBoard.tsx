@@ -871,9 +871,9 @@ const BulletinBoard: React.FC<BulletinBoardProps> = ({ onClose, user, initialSho
         <WindowMenuBar menus={menus} />
         
         {/* 메인 콘텐츠 영역 */}
-        <main className="flex flex-grow overflow-hidden" style={{ height: 'calc(100% - 64px)'}}>
+        <main className="flex flex-col md:flex-row flex-grow overflow-hidden" style={{ height: 'calc(100% - 64px)'}}>
           {/* 왼쪽 사이드바 */}
-          <div className="w-60 flex-shrink-0 border-r" style={{ borderColor: pcColors.border.primary }}>
+          <div className="w-full md:w-60 flex-shrink-0 border-b md:border-b-0 md:border-r" style={{ borderColor: pcColors.border.primary }}>
             <Sidebar 
               categories={sidebarCategories}
               selectedCategory={selectedCategory} 
@@ -889,7 +889,7 @@ const BulletinBoard: React.FC<BulletinBoardProps> = ({ onClose, user, initialSho
           {/* 메인 콘텐츠 */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* 게시물 목록 */}
-            <div className="h-1/2 overflow-auto border-b" style={{ borderColor: pcColors.border.primary }}>
+            <div className={`${isMobileDetailView ? 'hidden md:block' : ''} h-1/2 overflow-auto border-b`} style={{ borderColor: pcColors.border.primary }}>
               <TextBox title="게시물 목록" borderStyle="single" className="h-full">
                 <PostList 
                   posts={filteredPosts} 
@@ -904,19 +904,30 @@ const BulletinBoard: React.FC<BulletinBoardProps> = ({ onClose, user, initialSho
             </div>
             
             {/* 게시물 상세 */}
-            <div className="flex-1 overflow-auto">
+            <div className={`${isMobileDetailView ? 'h-full' : 'flex-1'} overflow-auto`}>
               <TextBox title="게시물 내용" borderStyle="single" className="h-full">
                 {selectedPost ? (
-                  <PostDetail 
-                    post={selectedPost} 
-                    onEditPost={handleOpenEditModal} 
-                    onDeletePost={requestDeletePost}
-                    onSelectTag={handleSelectTag}
-                    categories={categories.filter(cat => cat.id !== 'all')} // 'all' 카테고리는 제외
-                    isPostOwner={isPostOwner(selectedPost)}
-                    onRefresh={refreshPostData}
-                    userId={user?.uid}
-                  />
+                  <div className="relative">
+                    {isMobileDetailView && (
+                      <button 
+                        onClick={handleDeselectPost}
+                        className="absolute top-0 right-0 p-2 text-pc-text-cyan"
+                        style={{ color: pcColors.text.secondary }}
+                      >
+                        {SPECIAL.leftArrow} 목록으로
+                      </button>
+                    )}
+                    <PostDetail 
+                      post={selectedPost} 
+                      onEditPost={handleOpenEditModal} 
+                      onDeletePost={requestDeletePost}
+                      onSelectTag={handleSelectTag}
+                      categories={categories.filter(cat => cat.id !== 'all')} // 'all' 카테고리는 제외
+                      isPostOwner={isPostOwner(selectedPost)}
+                      onRefresh={refreshPostData}
+                      userId={user?.uid}
+                    />
+                  </div>
                 ) : (
                   <div className="flex items-center justify-center h-full text-pc-text-cyan" style={{ color: pcColors.text.secondary }}>
                     게시물을 선택하세요.

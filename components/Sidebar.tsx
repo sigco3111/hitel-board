@@ -21,6 +21,10 @@ interface SidebarProps {
   showBookmarks?: boolean; // 북마크 필터링 활성화 상태
 }
 
+/**
+ * 사이드바 컴포넌트
+ * PC통신 스타일의 카테고리 및 태그 메뉴를 제공합니다.
+ */
 const Sidebar: React.FC<SidebarProps> = ({ 
   categories = [], // 기본값으로 빈 배열 설정 
   selectedCategory, 
@@ -70,11 +74,15 @@ const Sidebar: React.FC<SidebarProps> = ({
     // Selection 에러 방지를 위한 비동기 처리
     setTimeout(() => {
       onSelectCategory(categoryId);
+      // 태그 선택 해제
+      if (selectedTag) {
+        onSelectTag(null);
+      }
     }, 10);
-  }, [onSelectCategory, clearSelection]);
+  }, [onSelectCategory, clearSelection, selectedTag, onSelectTag]);
   
   // 태그 선택 핸들러 (에러 방지를 위한 처리 추가)
-  const handleSelectTag = useCallback((tag: string) => {
+  const handleSelectTag = useCallback((tag: string | null) => {
     // 선택 초기화
     clearSelection();
     
@@ -103,55 +111,94 @@ const Sidebar: React.FC<SidebarProps> = ({
   const categoryMenuItems: MenuItem[] = safeCategories.map(category => ({
     id: category.id,
     label: category.name,
-    shortcut: category.icon || '',
+    shortcut: category.id === selectedCategory ? SPECIAL.arrow : (category.icon || ''),
     onClick: () => handleSelectCategory(category.id)
   }));
 
-  // 태그 메뉴 아이템 생성
-  const tagMenuItems: MenuItem[] = safeAllTags.map(tag => ({
+  // 태그 메뉴 아이템 생성 (태그가 많을 경우 성능 고려)
+  const tagMenuItems: MenuItem[] = safeAllTags.slice(0, 50).map(tag => ({
     id: tag,
     label: tag,
-    shortcut: '#',
+    shortcut: tag === selectedTag ? SPECIAL.arrow : '#',
     onClick: () => handleSelectTag(tag)
   }));
 
+  // 태그 클리어 버튼 (태그가 선택된 경우에만 표시)
+  const handleClearTag = () => {
+    handleSelectTag(null);
+  };
+
   return (
     <div className="flex flex-col h-full p-1 overflow-hidden">
-      {/* 카테고리 메뉴 */}
+      {/* 카테고리 섹션 */}
       <div className="mb-2">
-        <PCMenu 
-          title="카테고리" 
-          items={categoryMenuItems}
-          selectedId={selectedTag ? '' : selectedCategory}
-          borderStyle="single"
-          width="100%"
-        />
-      </div>
-      
-      {/* 태그 메뉴 */}
-      <div className="flex-grow overflow-hidden">
-        <TextBox title="태그" borderStyle="single" className="h-full overflow-auto">
-          <div className="flex flex-col">
-            {safeAllTags.map((tag) => (
+        <TextBox title="카테고리" borderStyle="single" className="w-full">
+          <div className="py-1">
+            {safeCategories.map((category) => (
               <div 
-                key={tag}
-                className={`
-                  py-1 px-2 cursor-pointer font-pc flex items-center
-                  ${selectedTag === tag ? 'bg-pc-selection-bg text-pc-selection-text' : ''}
-                  hover:text-pc-text-yellow
-                `}
-                onClick={() => handleSelectTag(tag)}
+                key={category.id}
+                className="flex items-center py-1 px-2 cursor-pointer"
                 style={{
-                  color: selectedTag === tag ? pcColors.selection.text : pcColors.text.primary,
-                  backgroundColor: selectedTag === tag ? pcColors.selection.background : 'transparent',
+                  backgroundColor: category.id === selectedCategory ? pcColors.selection.background : 'transparent',
+                  color: category.id === selectedCategory ? pcColors.selection.text : pcColors.text.primary,
                 }}
+                onClick={() => handleSelectCategory(category.id)}
               >
-                <span className="inline-block w-4 text-center mr-2">
-                  {selectedTag === tag ? SPECIAL.arrow : '#'}
+                <span className="inline-block w-6 text-center mr-2">
+                  {category.id === selectedCategory ? SPECIAL.arrow : (category.icon || ' ')}
                 </span>
-                <span className="truncate">{tag}</span>
+                <span className="flex-grow truncate">{category.name}</span>
+                {category.id === selectedCategory && (
+                  <span className="ml-1" style={{ color: pcColors.text.accent }}>{SPECIAL.checkedBox}</span>
+                )}
               </div>
             ))}
+          </div>
+        </TextBox>
+      </div>
+      
+      {/* 태그 섹션 */}
+      <div className="flex-grow overflow-hidden">
+        <TextBox title="태그" borderStyle="single" className="h-full">
+          <div className="flex flex-col overflow-y-auto" style={{ maxHeight: 'calc(100% - 2rem)' }}>
+            {/* 태그 선택 해제 버튼 */}
+            {selectedTag && (
+              <div 
+                className="py-1 px-2 cursor-pointer border-b"
+                style={{ 
+                  borderColor: pcColors.border.primary,
+                  color: pcColors.text.accent
+                }}
+                onClick={handleClearTag}
+              >
+                <span className="inline-block w-6 text-center mr-2">{SPECIAL.leftArrow}</span>
+                <span>선택 해제</span>
+              </div>
+            )}
+            
+            {/* 태그 목록 */}
+            {safeAllTags.length > 0 ? (
+              safeAllTags.map((tag) => (
+                <div 
+                  key={tag}
+                  className="py-1 px-2 cursor-pointer"
+                  style={{
+                    backgroundColor: tag === selectedTag ? pcColors.selection.background : 'transparent',
+                    color: tag === selectedTag ? pcColors.selection.text : pcColors.text.primary,
+                  }}
+                  onClick={() => handleSelectTag(tag)}
+                >
+                  <span className="inline-block w-6 text-center mr-2">
+                    {tag === selectedTag ? SPECIAL.arrow : '[#]'}
+                  </span>
+                  <span className="truncate">{tag}</span>
+                </div>
+              ))
+            ) : (
+              <div className="py-2 px-2 text-center" style={{ color: pcColors.text.secondary }}>
+                태그가 없습니다
+              </div>
+            )}
           </div>
         </TextBox>
       </div>
@@ -160,10 +207,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="mt-2">
         <button 
           onClick={handleNewPost} 
-          className="w-full py-1 px-2 border border-pc-border-white text-pc-text-yellow font-pc text-center"
+          className="w-full py-1 px-2 border font-pc text-center"
           style={{ 
             borderColor: pcColors.border.primary,
-            color: pcColors.text.accent
+            color: pcColors.text.accent,
+            backgroundColor: pcColors.background.secondary
           }}
         >
           {SPECIAL.star} 새 게시물 작성 {SPECIAL.star}

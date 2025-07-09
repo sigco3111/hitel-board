@@ -219,22 +219,28 @@ const PostDetail: React.FC<PostDetailProps> = ({
           
           {/* 태그 목록 */}
           {post.tags && post.tags.length > 0 && (
-            <div className="mt-6 pt-4 border-t flex items-center flex-wrap gap-2" style={{ borderColor: pcColors.border.primary }}>
-              {post.tags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => onSelectTag(tag)}
-                  className="flex items-center px-2 py-1 border"
-                  style={{ 
-                    borderColor: pcColors.border.primary,
-                    color: pcColors.text.secondary,
-                    backgroundColor: pcColors.background.secondary
-                  }}
-                >
-                  <span className="mr-1">#</span>
-                  <span>{tag}</span>
-                </button>
-              ))}
+            <div className="mt-6 pt-4 border-t" style={{ borderColor: pcColors.border.primary }}>
+              <div className="flex items-center mb-2">
+                <span style={{ color: pcColors.text.accent }}>{SPECIAL.bullet}</span>
+                <span className="ml-2 font-bold" style={{ color: pcColors.text.accent }}>태그</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => onSelectTag(tag)}
+                    className="flex items-center px-2 py-1 border"
+                    style={{ 
+                      borderColor: pcColors.border.primary,
+                      color: pcColors.text.secondary,
+                      backgroundColor: pcColors.background.secondary
+                    }}
+                  >
+                    <span className="mr-1">[{SPECIAL.bullet}]</span>
+                    <span>{tag}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </TextBox>

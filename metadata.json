@@ -1,0 +1,6 @@
+{
+  "name": "macOS Style Board",
+  "description": "A bulletin board application with a user interface inspired by macOS, allowing users to browse, create, and view posts in a clean, familiar layout.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

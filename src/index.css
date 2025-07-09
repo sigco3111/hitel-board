@@ -1,0 +1,350 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* PC통신 스타일 마크다운 스타일 */
+.prose pre {
+  @apply bg-pc-bg-deep-blue text-pc-text-white p-4 rounded-none overflow-x-auto border border-pc-text-cyan;
+}
+
+.prose pre code {
+  @apply bg-transparent text-inherit p-0 border-0 shadow-none;
+  font-family: 'Courier New', monospace, 'D2Coding', 'Consolas', 'Liberation Mono';
+}
+
+.prose code {
+  @apply text-sm;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-pc-text-cyan pl-4 italic text-pc-text-cyan;
+}
+
+.prose table {
+  @apply border-collapse border border-pc-text-white;
+}
+
+.prose th, .prose td {
+  @apply border border-pc-text-white p-2;
+}
+
+.prose th {
+  @apply bg-pc-bg-blue text-pc-text-yellow;
+}
+
+.prose img {
+  @apply max-w-full my-4 border border-pc-text-white;
+}
+
+.prose hr {
+  @apply my-6 border-t border-pc-text-white;
+}
+
+/* 마크다운 체크박스 스타일 */
+.prose input[type="checkbox"] {
+  @apply mr-2 border-pc-text-white text-pc-text-yellow;
+}
+
+/* 마크다운 링크 스타일 */
+.prose a {
+  @apply text-pc-text-cyan no-underline hover:underline;
+}
+
+/* 마크다운 목록 스타일 */
+.prose ul {
+  @apply list-disc pl-5 my-4;
+}
+
+.prose ol {
+  @apply list-decimal pl-5 my-4;
+}
+
+/* 마크다운 제목 스타일 */
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  @apply font-bold text-pc-text-yellow mt-6 mb-4;
+}
+
+.prose h1 {
+  @apply text-3xl;
+}
+
+.prose h2 {
+  @apply text-2xl;
+}
+
+.prose h3 {
+  @apply text-xl;
+}
+
+.prose h4 {
+  @apply text-lg;
+}
+
+.prose h5, .prose h6 {
+  @apply text-base;
+}
+
+@layer base {
+  html {
+    font-family: 'Courier New', monospace, 'D2Coding', 'Consolas', 'Liberation Mono';
+  }
+  
+  body {
+    background-color: var(--pc-bg-deep-blue);
+    color: var(--pc-text-white);
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  :root {
+    /* 기존 macOS 색상 변수 (필요에 따라 유지) */
+    --mac-blue-color: #0070c9;
+    --mac-gray-color: #f5f5f7;
+    --mac-dark-color: #1d1d1f;
+    --mac-light-color: #fbfbfd;
+    --mac-border-color: #d2d2d7;
+    --mac-window-color: rgba(255, 255, 255, 0.8);
+    --mac-sidebar-color: #f9f9f9;
+    
+    /* PC통신 스타일 색상 변수 추가 */
+    --pc-bg-deep-blue: #00008B;
+    --pc-bg-blue: #0000CD;
+    --pc-bg-light-blue: #1E3A8A;
+    --pc-text-white: #FFFFFF;
+    --pc-text-yellow: #FFFF00;
+    --pc-text-cyan: #00FFFF;
+    --pc-text-green: #00FF00;
+    --pc-text-red: #FF0000;
+    --pc-text-gray: #AAAAAA;
+    --pc-border-white: #FFFFFF;
+    --pc-border-yellow: #FFFF00;
+    --pc-selection-bg: #FFFF00;
+    --pc-selection-text: #00008B;
+  }
+}
+
+@layer components {
+  /* 기존 macOS 스타일 컴포넌트 (필요에 따라 유지) */
+  .bg-mac-light {
+    background-color: var(--mac-light-color);
+  }
+  
+  .bg-mac-window {
+    background-color: var(--mac-window-color);
+  }
+  
+  .text-mac-dark {
+    color: var(--mac-dark-color);
+  }
+  
+  .bg-mac-blue {
+    background-color: var(--mac-blue-color);
+  }
+  
+  .text-mac-blue {
+    color: var(--mac-blue-color);
+  }
+  
+  .border-mac-border {
+    border-color: var(--mac-border-color);
+  }
+  
+  .bg-mac-gray {
+    background-color: var(--mac-gray-color);
+  }
+  
+  .bg-mac-sidebar {
+    background-color: var(--mac-sidebar-color);
+  }
+
+  .mac-window {
+    background-color: var(--mac-window-color);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    border: 1px solid var(--mac-border-color);
+    overflow: hidden;
+  }
+  
+  .mac-button {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+    border-radius: 0.375rem;
+    background-color: var(--mac-blue-color);
+    color: white;
+    font-weight: 500;
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  
+  .mac-button:hover {
+    opacity: 0.9;
+  }
+  
+  .mac-input {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--mac-border-color);
+  }
+  
+  .mac-input:focus {
+    outline: none;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+    --tw-ring-color: var(--mac-blue-color);
+  }
+  
+  /* PC통신 스타일 컴포넌트 추가 */
+  .bg-pc-deep-blue {
+    background-color: var(--pc-bg-deep-blue);
+  }
+  
+  .bg-pc-blue {
+    background-color: var(--pc-bg-blue);
+  }
+  
+  .bg-pc-light-blue {
+    background-color: var(--pc-bg-light-blue);
+  }
+  
+  .text-pc-white {
+    color: var(--pc-text-white);
+  }
+  
+  .text-pc-yellow {
+    color: var(--pc-text-yellow);
+  }
+  
+  .text-pc-cyan {
+    color: var(--pc-text-cyan);
+  }
+  
+  .text-pc-green {
+    color: var(--pc-text-green);
+  }
+  
+  .text-pc-red {
+    color: var(--pc-text-red);
+  }
+  
+  .text-pc-gray {
+    color: var(--pc-text-gray);
+  }
+  
+  .border-pc-white {
+    border-color: var(--pc-border-white);
+  }
+  
+  .border-pc-yellow {
+    border-color: var(--pc-border-yellow);
+  }
+  
+  .pc-window {
+    background-color: var(--pc-bg-deep-blue);
+    border: 1px solid var(--pc-border-white);
+    box-shadow: none;
+    overflow: hidden;
+  }
+  
+  .pc-button {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+    background-color: var(--pc-bg-blue);
+    color: var(--pc-text-white);
+    border: 1px solid var(--pc-border-white);
+    font-family: 'Courier New', monospace;
+  }
+  
+  .pc-button:hover {
+    background-color: var(--pc-bg-light-blue);
+    color: var(--pc-text-yellow);
+  }
+  
+  .pc-input {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    background-color: var(--pc-bg-deep-blue);
+    color: var(--pc-text-white);
+    border: 1px solid var(--pc-border-white);
+    font-family: 'Courier New', monospace;
+  }
+  
+  .pc-input:focus {
+    outline: none;
+    border-color: var(--pc-text-yellow);
+    color: var(--pc-text-yellow);
+  }
+  
+  .pc-menu-title {
+    color: var(--pc-text-yellow);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 1.125rem;
+  }
+  
+  .pc-menu-item {
+    color: var(--pc-text-white);
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+  }
+  
+  .pc-menu-item-selected {
+    color: var(--pc-selection-text);
+    background-color: var(--pc-selection-bg);
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+  }
+  
+  .pc-heading {
+    color: var(--pc-text-yellow);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+  
+  .pc-subheading {
+    color: var(--pc-text-cyan);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 1.25rem;
+  }
+  
+  .pc-text {
+    color: var(--pc-text-white);
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  .pc-text-small {
+    color: var(--pc-text-white);
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  
+  /* PC통신 테두리 스타일 */
+  .pc-border-single {
+    border: 1px solid var(--pc-border-white);
+  }
+  
+  .pc-border-double {
+    border: 3px double var(--pc-border-white);
+  }
+  
+  .pc-border-accent {
+    border: 1px solid var(--pc-border-yellow);
+  }
+} 

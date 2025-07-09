@@ -217,6 +217,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
         {/* 안내 메시지 */}
         <div className="mt-8 text-center text-pc-text-white">
+          <p>방향키(↑/↓)로 이동하고 Enter 키를 눌러 로그인하세요.</p>
           <p className="mt-2 text-pc-text-cyan">© 2025 하이텔 게시판</p>
         </div>
       </div>

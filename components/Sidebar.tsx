@@ -129,78 +129,81 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full p-1 overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* 카테고리 섹션 */}
-      <div className="mb-2">
-        <TextBox title="카테고리" borderStyle="single" className="w-full">
-          <div className="py-1">
-            {safeCategories.map((category) => (
-              <div 
-                key={category.id}
-                className="flex items-center py-1 px-2 cursor-pointer"
-                style={{
-                  backgroundColor: category.id === selectedCategory ? pcColors.selection.background : 'transparent',
-                  color: category.id === selectedCategory ? pcColors.selection.text : pcColors.text.primary,
-                }}
-                onClick={() => handleSelectCategory(category.id)}
-              >
-                <span className="inline-block w-6 text-center mr-2">
-                  {category.id === selectedCategory ? SPECIAL.arrow : (category.icon || ' ')}
-                </span>
-                <span className="flex-grow truncate">{category.name}</span>
-                {category.id === selectedCategory && (
-                  <span className="ml-1" style={{ color: pcColors.text.accent }}>{SPECIAL.checkedBox}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </TextBox>
+      <div className="mb-4 pb-2 border-b" style={{ borderColor: pcColors.border.primary }}>
+        <div className="mb-2 font-bold text-pc-text-yellow" style={{ color: pcColors.text.accent }}>
+          {SPECIAL.bullet} 카테고리
+        </div>
+        <div className="flex flex-wrap md:flex-col gap-1">
+          {categories.map(category => (
+            <div
+              key={category.id}
+              className={`
+                py-1 px-2 cursor-pointer flex items-center
+                ${selectedCategory === category.id ? 'bg-pc-selection-bg text-pc-selection-text' : ''}
+              `}
+              onClick={() => onSelectCategory(category.id)}
+              style={{
+                color: selectedCategory === category.id ? pcColors.selection.text : pcColors.text.primary,
+                backgroundColor: selectedCategory === category.id ? pcColors.selection.background : 'transparent',
+              }}
+            >
+              <span className="inline-block w-4 mr-1">
+                {selectedCategory === category.id ? SPECIAL.arrow : ' '}
+              </span>
+              <span>{category.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
-      
+
       {/* 태그 섹션 */}
-      <div className="flex-grow overflow-hidden">
-        <TextBox title="태그" borderStyle="single" className="h-full">
-          <div className="flex flex-col overflow-y-auto" style={{ maxHeight: 'calc(100% - 2rem)' }}>
-            {/* 태그 선택 해제 버튼 */}
-            {selectedTag && (
-              <div 
-                className="py-1 px-2 cursor-pointer border-b"
-                style={{ 
-                  borderColor: pcColors.border.primary,
-                  color: pcColors.text.accent
-                }}
-                onClick={handleClearTag}
-              >
-                <span className="inline-block w-6 text-center mr-2">{SPECIAL.leftArrow}</span>
-                <span>선택 해제</span>
-              </div>
-            )}
-            
-            {/* 태그 목록 */}
-            {safeAllTags.length > 0 ? (
-              safeAllTags.map((tag) => (
+      <div className="mb-4 pb-2 border-b overflow-y-auto" style={{ borderColor: pcColors.border.primary }}>
+        <div className="mb-2 font-bold text-pc-text-yellow" style={{ color: pcColors.text.accent }}>
+          {SPECIAL.bullet} 태그
+        </div>
+        <div className="flex flex-wrap md:flex-col gap-1">
+          {allTags.length > 0 ? (
+            <>
+              {/* 태그 초기화 버튼 */}
+              {selectedTag && (
+                <div 
+                  className="py-1 px-2 cursor-pointer text-pc-text-cyan"
+                  onClick={() => handleSelectTag(null)}
+                  style={{ color: pcColors.text.secondary }}
+                >
+                  {SPECIAL.bullet} 태그 필터 초기화
+                </div>
+              )}
+              
+              {/* 태그 목록 */}
+              {allTags.map(tag => (
                 <div 
                   key={tag}
-                  className="py-1 px-2 cursor-pointer"
-                  style={{
-                    backgroundColor: tag === selectedTag ? pcColors.selection.background : 'transparent',
-                    color: tag === selectedTag ? pcColors.selection.text : pcColors.text.primary,
-                  }}
+                  className={`
+                    py-1 px-2 cursor-pointer flex items-center
+                    ${selectedTag === tag ? 'bg-pc-selection-bg text-pc-selection-text' : ''}
+                  `}
                   onClick={() => handleSelectTag(tag)}
+                  style={{
+                    color: selectedTag === tag ? pcColors.selection.text : pcColors.text.primary,
+                    backgroundColor: selectedTag === tag ? pcColors.selection.background : 'transparent',
+                  }}
                 >
-                  <span className="inline-block w-6 text-center mr-2">
-                    {tag === selectedTag ? SPECIAL.arrow : '[#]'}
+                  <span className="inline-block w-4 mr-1">
+                    {selectedTag === tag ? SPECIAL.arrow : ' '}
                   </span>
-                  <span className="truncate">{tag}</span>
+                  <span>{tag}</span>
                 </div>
-              ))
-            ) : (
-              <div className="py-2 px-2 text-center" style={{ color: pcColors.text.secondary }}>
-                태그가 없습니다
-              </div>
-            )}
-          </div>
-        </TextBox>
+              ))}
+            </>
+          ) : (
+            <div className="text-pc-text-gray" style={{ color: pcColors.text.disabled }}>
+              태그가 없습니다.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 새 게시물 작성 버튼 */}

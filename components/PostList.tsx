@@ -103,11 +103,11 @@ const PostList: React.FC<PostListProps> = ({
   const renderTableHeader = () => (
     <div className="border-b border-pc-border-white px-2 py-1 font-pc" style={{ borderColor: pcColors.border.primary }}>
       <div className="grid grid-cols-12 gap-1 text-pc-text-cyan" style={{ color: pcColors.text.secondary }}>
-        <div className="col-span-1 text-center">번호</div>
-        <div className="col-span-6">제목</div>
-        <div className="col-span-2">작성자</div>
-        <div className="col-span-2 text-center">날짜</div>
-        <div className="col-span-1 text-center">조회</div>
+        <div className="col-span-1 text-center hidden sm:block">번호</div>
+        <div className="col-span-12 sm:col-span-6">제목</div>
+        <div className="hidden sm:block sm:col-span-2">작성자</div>
+        <div className="hidden sm:block sm:col-span-2 text-center">날짜</div>
+        <div className="hidden sm:block sm:col-span-1 text-center">조회</div>
       </div>
     </div>
   );
@@ -164,8 +164,8 @@ const PostList: React.FC<PostListProps> = ({
     <div className="w-full flex flex-col h-full">
       {/* 검색창 */}
       <div className="px-2 py-2 border-b" style={{ borderColor: pcColors.border.primary }}>
-        <div className="flex items-center">
-          <div className="flex items-center mr-2">
+        <div className="flex flex-col sm:flex-row sm:items-center">
+          <div className="flex items-center mb-2 sm:mb-0 sm:mr-2">
             <span style={{ color: pcColors.text.accent }}>{SPECIAL.arrow}</span>
             <span className="ml-2 font-bold" style={{ color: pcColors.text.accent }}>검색</span>
           </div>
@@ -175,7 +175,7 @@ const PostList: React.FC<PostListProps> = ({
               type="text"
               value={inputValue}
               onChange={handleSearchInputChange}
-              placeholder="검색어를 입력하세요..."
+              placeholder="검색어 입력..."
               className="w-full py-1 px-2 font-pc border-none outline-none"
               style={{ 
                 backgroundColor: pcColors.background.secondary,
@@ -188,7 +188,7 @@ const PostList: React.FC<PostListProps> = ({
               }}
             />
             <button 
-              className="px-2 py-1 border-l flex items-center justify-center"
+              className="px-2 py-1 border-l flex items-center justify-center whitespace-nowrap"
               style={{ 
                 borderColor: pcColors.border.primary,
                 backgroundColor: pcColors.background.secondary,

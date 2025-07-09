@@ -70,8 +70,8 @@ const PostDetail: React.FC<PostDetailProps> = ({
          style={{ backgroundColor: pcColors.background.primary, color: pcColors.text.primary }}>
       {/* 게시물 헤더 */}
       <div className="px-4 py-2 border-b" style={{ borderColor: pcColors.border.primary }}>
-        <div className="flex justify-between items-start">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+          <div className="mb-2 sm:mb-0">
             <h1 className="text-xl font-bold" style={{ color: pcColors.text.accent }}>{post.title}</h1>
           </div>
           
@@ -113,8 +113,8 @@ const PostDetail: React.FC<PostDetailProps> = ({
           </div>
         </div>
         
-        <div className="flex items-center mt-2 text-sm" style={{ color: pcColors.text.secondary }}>
-          <span className="mr-2">작성자: {post.author.name}</span>
+        <div className="flex flex-wrap items-center mt-2 text-sm" style={{ color: pcColors.text.secondary }}>
+          <span className="mr-2 mb-1 sm:mb-0">작성자: {post.author.name}</span>
           <span>작성일: {new Date(post.date).toLocaleString()}</span>
         </div>
       </div>
@@ -229,7 +229,7 @@ const PostDetail: React.FC<PostDetailProps> = ({
                   <button
                     key={tag}
                     onClick={() => onSelectTag(tag)}
-                    className="flex items-center px-2 py-1 border"
+                    className="flex items-center px-2 py-1 border mb-2"
                     style={{ 
                       borderColor: pcColors.border.primary,
                       color: pcColors.text.secondary,

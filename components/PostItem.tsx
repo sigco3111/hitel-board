@@ -69,13 +69,13 @@ const PostItem: React.FC<PostItemProps> = ({ post, isSelected, onClick, index })
     >
       <div className="grid grid-cols-12 gap-1 items-center">
         {/* 게시물 번호 */}
-        <div className="col-span-1 text-center" 
+        <div className="hidden sm:block col-span-1 text-center" 
              style={{ color: isSelected ? pcColors.selection.text : pcColors.text.primary }}>
           {index}
         </div>
         
         {/* 제목 */}
-        <div className="col-span-6 truncate flex items-center" 
+        <div className="col-span-12 sm:col-span-6 truncate flex items-center" 
              style={{ color: isSelected ? pcColors.selection.text : pcColors.text.primary }}>
           {/* 북마크 표시 */}
           {isPostBookmarked && (
@@ -102,22 +102,29 @@ const PostItem: React.FC<PostItemProps> = ({ post, isSelected, onClick, index })
           <span className={isSelected ? '' : 'hover:text-pc-text-yellow'}>
             {truncateTitle(post.title)}
           </span>
+          
+          {/* 모바일에서만 표시되는 작성자와 날짜 정보 */}
+          <span className="sm:hidden ml-auto flex items-center text-xs" 
+                style={{ color: isSelected ? pcColors.selection.text : pcColors.text.secondary }}>
+            <span className="mr-2">{post.author.name}</span>
+            <span>{formatDate(post.date)}</span>
+          </span>
         </div>
         
         {/* 작성자 */}
-        <div className="col-span-2 truncate" 
+        <div className="hidden sm:block col-span-2 truncate" 
              style={{ color: isSelected ? pcColors.selection.text : pcColors.text.secondary }}>
           {post.author.name}
         </div>
         
         {/* 날짜 */}
-        <div className="col-span-2 text-center" 
+        <div className="hidden sm:block col-span-2 text-center" 
              style={{ color: isSelected ? pcColors.selection.text : pcColors.text.secondary }}>
           {formatDate(post.date)}
         </div>
         
         {/* 조회수 */}
-        <div className="col-span-1 text-center" 
+        <div className="hidden sm:block col-span-1 text-center" 
              style={{ color: isSelected ? pcColors.selection.text : pcColors.text.secondary }}>
           {/* UIPost 타입에는 viewCount가 없으므로 기본값 0 사용 */}
           0

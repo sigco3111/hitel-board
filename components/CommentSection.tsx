@@ -196,7 +196,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                 ) : (
                   <>
                     <div className="flex flex-col">
-                      <div className="flex justify-between items-center mb-1">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-1">
                         <div style={{ color: pcColors.text.accent }}>
                           {comment.author.name}
                           <span className="ml-2 text-xs" style={{ color: pcColors.text.secondary }}>
@@ -206,7 +206,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                         
                         {/* 작성자에게만 보이는 수정/삭제 버튼 */}
                         {user && user.uid === comment.authorId && (
-                          <div className="flex space-x-1">
+                          <div className="flex space-x-1 mt-1 sm:mt-0">
                             <button 
                               onClick={() => startEditing(comment)}
                               className="px-1"
@@ -278,12 +278,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       ) : user && user.isAnonymous ? (
         <div className="p-2 border-t text-center" 
              style={{ borderColor: pcColors.border.primary, color: pcColors.text.secondary }}>
-          게스트는 댓글을 작성할 수 없습니다. <a href="#" style={{ color: pcColors.text.accent }}>로그인</a> 후 이용해주세요.
+          게스트는 댓글을 작성할 수 없습니다. <br className="sm:hidden" /><a href="#" style={{ color: pcColors.text.accent }}>로그인</a> 후 이용해주세요.
         </div>
       ) : (
         <div className="p-2 border-t text-center" 
              style={{ borderColor: pcColors.border.primary, color: pcColors.text.secondary }}>
-          댓글을 작성하려면 <a href="#" style={{ color: pcColors.text.accent }}>로그인</a>이 필요합니다.
+          댓글을 작성하려면 <br className="sm:hidden" /><a href="#" style={{ color: pcColors.text.accent }}>로그인</a>이 필요합니다.
         </div>
       )}
     </div>

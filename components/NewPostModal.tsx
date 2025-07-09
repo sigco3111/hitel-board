@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Category, Post, UIPost } from '../src/types';
 import MDEditor from '@uiw/react-md-editor';
 import '@uiw/react-md-editor/markdown-editor.css';
@@ -34,8 +34,17 @@ const NewPostModal: React.FC<NewPostModalProps> = ({ categories, onClose, onSave
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
 
   const isEditing = postToEdit != null;
+  
+  // 초기화 여부를 추적하는 ref
+  const isInitialized = useRef(false);
 
+  // 컴포넌트가 마운트될 때만 초기화 실행
   useEffect(() => {
+    // 이미 초기화되었다면 실행하지 않음
+    if (isInitialized.current) {
+      return;
+    }
+
     try {
       if (isEditing && postToEdit) {
         // 데이터 유효성 확인
@@ -83,6 +92,9 @@ const NewPostModal: React.FC<NewPostModalProps> = ({ categories, onClose, onSave
         setContent('');
         setTags(''); // 태그 초기화
       }
+      
+      // 초기화 완료 표시
+      isInitialized.current = true;
     } catch (error) {
       // 최상위 예외 처리
       console.error("게시물 데이터 처리 중 오류가 발생했습니다:", error);
@@ -91,8 +103,11 @@ const NewPostModal: React.FC<NewPostModalProps> = ({ categories, onClose, onSave
       setCategory(categories[0]?.id || '');
       setContent('');
       setTags('');
+      
+      // 오류가 발생해도 초기화 완료 표시
+      isInitialized.current = true;
     }
-  }, [postToEdit, isEditing, categories, selectedCategory]);
+  }, []); // 의존성 배열을 비워서 컴포넌트가 마운트될 때만 실행
 
   // 태그 입력 시 자동 완성 기능
   useEffect(() => {

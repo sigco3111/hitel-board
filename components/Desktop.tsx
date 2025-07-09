@@ -214,11 +214,6 @@ const Desktop: React.FC<DesktopProps> = ({ user, onOpenBoard, onLogout }) => {
           </div>
         </TextBox>
 
-        {/* 안내 메시지 */}
-        <div className="mt-auto text-center text-pc-text-secondary">
-          <p>방향키(↑/↓)로 이동하고 Enter 키를 누르거나 메뉴 번호를 입력하세요.</p>
-          <p className="mt-2 text-pc-text-cyan">© 2025 하이텔 게시판</p>
-        </div>
       </div>
 
       {/* 모달 및 게시판 */}

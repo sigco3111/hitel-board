@@ -129,6 +129,24 @@ const PostItem: React.FC<PostItemProps> = ({ post, isSelected, onClick, index })
           {/* UIPost 타입에는 viewCount가 없으므로 기본값 0 사용 */}
           0
         </div>
+        
+        {/* 북마크 버튼 */}
+        {user && !user.isAnonymous && (
+          <div className="hidden sm:flex items-center justify-center ml-1">
+            <button
+              onClick={handleBookmarkToggle}
+              className="px-1 py-0.5"
+              style={{ 
+                color: isPostBookmarked 
+                  ? (isSelected ? pcColors.selection.text : pcColors.text.accent) 
+                  : (isSelected ? pcColors.selection.text : pcColors.text.secondary)
+              }}
+              title={isPostBookmarked ? "북마크 해제" : "북마크 추가"}
+            >
+              {isPostBookmarked ? SPECIAL.star : SPECIAL.bullet}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

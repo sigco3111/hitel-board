@@ -2,6 +2,7 @@ import React from 'react';
 import type { UIPost } from '../src/types';
 import { MessagesSquareIcon, HashtagIcon, PencilIcon, TrashIcon } from './icons';
 import { useAuth } from '../src/hooks/useAuth';
+import { useBookmarks } from '../src/hooks/useBookmarks';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
@@ -38,6 +39,8 @@ const PostDetail: React.FC<PostDetailProps> = ({
 }) => {
   // 인증 정보 가져오기
   const { user } = useAuth();
+  // 북마크 기능 사용
+  const { isBookmarked, toggleBookmark, checkBookmarkStatus } = useBookmarks(user?.uid);
   
   // 기본 프로필 이미지
   const defaultAvatar = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCI+PC9jaXJjbGU+PC9zdmc+`;
@@ -45,6 +48,27 @@ const PostDetail: React.FC<PostDetailProps> = ({
   // 사용자 권한 확인: 외부에서 전달받은 값(isPostOwner)과 컴포넌트 내부에서 계산한 값 모두 사용
   const isCurrentUserAuthor = user && post && user.uid === post.authorId;
   const canEditDelete = isPostOwner || isCurrentUserAuthor;
+  
+  // 북마크 상태 확인
+  React.useEffect(() => {
+    if (user && post?.id) {
+      checkBookmarkStatus(post.id);
+    }
+  }, [user, post?.id, checkBookmarkStatus]);
+  
+  // 북마크 토글 처리
+  const handleBookmarkToggle = () => {
+    if (user && post?.id) {
+      if (user.isAnonymous) {
+        alert('게스트는 북마크 기능을 사용할 수 없습니다. 로그인 후 이용해주세요.');
+        return;
+      }
+      toggleBookmark(post.id, user.isAnonymous);
+    }
+  };
+  
+  // 북마크 상태 확인
+  const isPostBookmarked = post ? isBookmarked(post.id) : false;
 
   if (!post) {
     return (
@@ -76,6 +100,22 @@ const PostDetail: React.FC<PostDetailProps> = ({
           </div>
           
           <div className="flex items-center">
+            {/* 북마크 버튼 */}
+            {user && !user.isAnonymous && (
+              <button
+                onClick={handleBookmarkToggle}
+                className="px-2 py-1 border mr-2"
+                style={{ 
+                  borderColor: pcColors.border.primary,
+                  color: isPostBookmarked ? pcColors.text.accent : pcColors.text.secondary,
+                  backgroundColor: pcColors.background.secondary
+                }}
+                title={isPostBookmarked ? "북마크 해제" : "북마크 추가"}
+              >
+                {isPostBookmarked ? `${SPECIAL.star} 북마크됨` : `${SPECIAL.bullet} 북마크`}
+              </button>
+            )}
+            
             {post.comments > 0 && (
               <div className="flex items-center mr-4" style={{ color: pcColors.text.secondary }}>
                 <span className="mr-1">{SPECIAL.bullet}</span>

@@ -5,7 +5,7 @@
 
 HITEL-BOARD는 90년대 PC통신 인터페이스에서 영감을 받은 레트로 스타일의 온라인 게시판 시스템입니다. 사용자들은 다양한 주제에 대한 게시물을 작성하고, 공유하며 커뮤니티를 형성할 수 있습니다. 과거 하이텔, 나우누리, 천리안 등의 PC통신 UI를 재현하여 향수를 자극하는 사용자 경험을 제공합니다.
 
-실행주소1 : https://hitel-board.vercel.app/
+실행주소1 : https://sigco3111.github.io/hitel-board/
 
 실행주소2 : https://dev-canvas-pi.vercel.app/
 
@@ -246,6 +246,6 @@ HITEL-BOARD는 모바일 기기에서도 사용할 수 있도록 반응형 디�
 
 ## 📞 연락처
 
-프로젝트 링크: https://hitel-board.vercel.app/
+프로젝트 링크: https://sigco3111.github.io/hitel-board/
 
-프로젝트 관리자 - https://hitel-board.vercel.app/ > 자유게시판
+프로젝트 관리자 - https://sigco3111.github.io/hitel-board/ > 자유게시판

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <rect width="180" height="180" fill="#000080" rx="20" ry="20"/>
+  <text x="90" y="120" font-family="monospace" font-size="120" font-weight="bold" fill="#00ff00" text-anchor="middle">H</text>
+  <rect x="20" y="20" width="140" height="10" fill="#00ff00" />
+  <rect x="20" y="150" width="140" height="10" fill="#00ff00" />
+  <rect x="20" y="20" width="10" height="140" fill="#00ff00" />
+  <rect x="150" y="20" width="10" height="140" fill="#00ff00" />
+</svg> 

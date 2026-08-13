@@ -5,6 +5,8 @@ import { defineConfig, loadEnv } from 'vite';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      // base: '/' — Vercel root context 호스팅용 (tech-toolkit-hub 71f + DevCanvas 패턴)
+      base: '/',
       define: {
         // 사용되지 않는 API 키 참조 제거
       },

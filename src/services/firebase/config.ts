@@ -60,17 +60,23 @@ if (isDevelopment) {
   });
 }
 
-// Firebase 앱 초기화
-export const firebaseApp = initializeApp(firebaseConfig);
+// Firebase 앱 초기화 (try/catch로 안전하게 — 71b 함정 회피)
+let firebaseApp;
+try {
+  firebaseApp = initializeApp(firebaseConfig);
+} catch (error) {
+  console.error('❌ Firebase 앱 초기화 실패:', error);
+  firebaseApp = null;
+}
 
-// 인증 서비스 인스턴스
-export const auth = getAuth(firebaseApp);
+// 인증 서비스 인스턴스 (firebaseApp null 가드)
+export const auth = firebaseApp ? getAuth(firebaseApp) : null;
 if (isDevelopment) {
   console.log('Firebase 인증 서비스 초기화됨:', auth.currentUser ? '사용자 있음' : '사용자 없음');
 }
 
-// Firestore 데이터베이스 인스턴스
-export const db = getFirestore(firebaseApp);
+// Firestore 데이터베이스 인스턴스 (firebaseApp null 가드)
+export const db = firebaseApp ? getFirestore(firebaseApp) : null;
 
 // 성능 및 신뢰성 설정을 적용
 if (db) {

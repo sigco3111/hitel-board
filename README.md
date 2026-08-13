@@ -3,11 +3,11 @@
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
+Live Demo : https://hitel-board.vercel.app/
+
+[![Live](https://img.shields.io/badge/Live-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://hitel-board.vercel.app/)
+
 HITEL-BOARD는 90년대 PC통신 인터페이스에서 영감을 받은 레트로 스타일의 온라인 게시판 시스템입니다. 사용자들은 다양한 주제에 대한 게시물을 작성하고, 공유하며 커뮤니티를 형성할 수 있습니다. 과거 하이텔, 나우누리, 천리안 등의 PC통신 UI를 재현하여 향수를 자극하는 사용자 경험을 제공합니다.
-
-실행주소1 : https://sigco3111.github.io/hitel-board/
-
-실행주소2 : https://dev-canvas-pi.vercel.app/
 
 ## 🌟 주요 기능
 
@@ -246,6 +246,21 @@ HITEL-BOARD는 모바일 기기에서도 사용할 수 있도록 반응형 디�
 
 ## 📞 연락처
 
-프로젝트 링크: https://sigco3111.github.io/hitel-board/
+프로젝트 링크: https://hitel-board.vercel.app/
 
-프로젝트 관리자 - https://sigco3111.github.io/hitel-board/ > 자유게시판
+프로젝트 관리자 - https://hitel-board.vercel.app/ > 자유게시판
+---
+
+## 📦 호스팅 메모 (2026-08-13)
+
+- **Vercel 프로젝트**: `sigco3111s-projects/hitel-board`
+- **라이브 데모**: `https://hitel-board.vercel.app/` (alias 자동)
+- **빌드 워크플로**: `npx vite build` (Firebase 키 `.env`에서 import.meta.env로 박힘) → `cp dist/index.html .vercel/output/static/` + `cp dist/assets/index-*.js .vercel/output/static/assets/` (Vercel 빌드 우회) → `vercel deploy --prebuilt --prod`
+- **Firebase 환경변수 (Vercel Production)**:
+  - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`
+  - `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
+- **Firebase Console 작업 필요** (배포 후):
+  1. Firestore → Rules: `allow read, write: if true;` (개발용 임시)
+  2. Authentication → Settings → Authorized domains: `hitel-board.vercel.app` 추가
+- **`vercel.json` 보존**: SPA rewrites (`/(.*)` → `/index.html`) — React Router 라우팅용
+- **이전 거짓 링크 제거**: `https://sigco3111.github.io/hitel-board/` (404), `https://dev-canvas-pi.vercel.app/` (다른 repo alias)
